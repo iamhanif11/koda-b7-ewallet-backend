@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/iamhanif11/ewallet-backend/internal/dto"
 	"github.com/iamhanif11/ewallet-backend/internal/repository"
@@ -10,6 +11,8 @@ import (
 type UserService struct {
 	userRepository *repository.UserRepository
 }
+
+var ErrPin = errors.New("Please Input PIN")
 
 func NewUserService(userRepository *repository.UserRepository) *UserService {
 	return &UserService{
@@ -28,4 +31,15 @@ func (us *UserService) GetProfile(ctx context.Context, user_Id int) (dto.UserPro
 		Email:    profile.Email,
 		Picture:  profile.Picture,
 	}, nil
+}
+
+func (us *UserService) CheckPin(ctx context.Context, user_Id int, pin string) (dto.UserCheckPinRes, error) {
+	user, err := us.userRepository.GetPinById(ctx, user_Id)
+	if err != nil {
+		return dto.UserCheckPinRes{}, err
+	}
+	if user.Pin == nil {
+		return dto.UserCheckPinRes{}, ErrPin
+	}
+	return dto.UserCheckPinRes{IsValid: true}, nil
 }

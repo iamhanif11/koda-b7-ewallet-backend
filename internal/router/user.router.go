@@ -22,4 +22,5 @@ func UserRouter(router *gin.Engine, db *pgxpool.Pool) {
 	UserRouter.Use(authMiddleware.VerifyToken())
 
 	UserRouter.GET("/profile", userController.GetProfile)
+	UserRouter.POST("/profile/pin/check", userController.CheckPin)
 }

@@ -1,10 +1,14 @@
 package controller
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+
+	// "github.com/gin-gonic/gin/binding"
 	"github.com/iamhanif11/ewallet-backend/internal/dto"
 	"github.com/iamhanif11/ewallet-backend/internal/service"
 	"github.com/iamhanif11/ewallet-backend/pkg"
@@ -61,4 +65,59 @@ func (uc *UserController) GetProfile(ctx *gin.Context) {
 		Message: "Get Profile Success",
 		Success: true,
 	})
+}
+
+func (uc *UserController) CheckPin(ctx *gin.Context) {
+	claims, ok := ctx.Get("user")
+	userClaims, ok := claims.(*pkg.Claims)
+	log.Println("cek: ", userClaims)
+
+	if !ok {
+		return
+	}
+
+	var body dto.UserCheckPinReq
+	log.Println("cek body", body)
+	if err := ctx.ShouldBindWith(&body, binding.JSON); err != nil {
+		ctx.JSON(http.StatusBadRequest, dto.Response{
+			Message: "Bad request",
+			Success: false,
+			Error:   err.Error(),
+		})
+		return
+	}
+
+	res, err := uc.userService.CheckPin(ctx.Request.Context(), userClaims.Id, body.Pin)
+
+	if err != nil {
+		log.Printf("[ERROR] CheckPin: %v", err)
+		if errors.Is(err, service.ErrPin) {
+			ctx.JSON(http.StatusUnauthorized, dto.Response{
+				Message: "Invalid PIN",
+				Success: false,
+			})
+			return
+		}
+		if errors.Is(err, service.ErrPin) {
+			ctx.JSON(http.StatusUnauthorized, dto.Response{
+				Message: "No PIN defined",
+				Success: false,
+			})
+			return
+		}
+		log.Println("cek", res)
+		ctx.JSON(http.StatusInternalServerError, dto.Response{
+			Message: "Internal Server Error",
+			Success: false,
+		})
+		log.Println("cek2: ", res)
+		return
+
+	}
+	ctx.JSON(http.StatusAccepted, dto.Response{
+		Message: "PIN Valid",
+		Success: true,
+		Data:    res,
+	})
+
 }
