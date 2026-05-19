@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"log"
 
 	"github.com/iamhanif11/ewallet-backend/internal/dto"
 	"github.com/iamhanif11/ewallet-backend/internal/repository"
@@ -37,9 +38,11 @@ func (as *AuthService) RegisterUser(ctx context.Context, user dto.NewUser) (dto.
 
 // login
 func (as *AuthService) LoginUser(ctx context.Context, user dto.User) (string, dto.User, error) {
+	log.Println(user)
 	login, err := as.authRepository.GetUserByEmail(ctx, user.Email)
 	if err != nil {
-		return "", dto.User{}, errors.New("Email or Password Invalid")
+		log.Printf("Database Error: %v", err)
+		return "", dto.User{}, errors.New("Email or Password Invalid 1")
 	}
 
 	var hash pkg.HashConfig
@@ -52,6 +55,8 @@ func (as *AuthService) LoginUser(ctx context.Context, user dto.User) (string, dt
 	if err != nil {
 		return "", dto.User{}, err
 	}
+
+	log.Println(token)
 
 	return token, dto.User{
 		Email: user.Email,

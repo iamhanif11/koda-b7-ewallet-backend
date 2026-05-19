@@ -6,9 +6,10 @@ type User struct {
 	Id        int        `db:"id"`
 	Email     string     `db:"email"`
 	Password  string     `db:"password"`
-	Pin       string     `db:"pin"`
-	Picture   string     `db:"picture"`
-	Phone     string     `db:"phone"`
+	Fullname  *string    `db:"fullname"`
+	Pin       *string    `db:"pin"`
+	Picture   *string    `db:"picture"`
+	Phone     *string    `db:"phone"`
 	CreatedAt *time.Time `db:"created_at"`
 	UpdateAt  *time.Time `db:"updated_at"`
 }
