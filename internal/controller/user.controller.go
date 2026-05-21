@@ -121,3 +121,38 @@ func (uc *UserController) CheckPin(ctx *gin.Context) {
 	})
 
 }
+
+func (uc *UserController) UpdateProfile(ctx *gin.Context) {
+	claims, ok := ctx.Get("user")
+	userClaims, ok := claims.(*pkg.Claims)
+	if !ok {
+		return
+	}
+
+	var body dto.UserUpdateProfileReq
+	if err := ctx.ShouldBindBodyWith(&body, binding.JSON); err != nil {
+		ctx.JSON(http.StatusBadRequest, dto.Response{
+			Message: "Invalid",
+			Success: false,
+			Error:   err.Error(),
+		})
+		return
+	}
+
+	res, err := uc.userService.UpdateProfile(ctx.Request.Context(), userClaims.Id, body)
+	log.Println(res)
+	if err != nil {
+		log.Println("err: ", err)
+		ctx.JSON(http.StatusInternalServerError, dto.Response{
+			Message: "Internal Server Error",
+			Success: false,
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusAccepted, dto.Response{
+		Message: "Update Profile Succesfully",
+		Success: true,
+		Data:    res,
+	})
+}

@@ -48,3 +48,23 @@ func (ur *UserRepository) GetPinById(ctx context.Context, userId int) (model.Use
 	}
 	return user, nil
 }
+
+func (ur *UserRepository) UpdateProfileById(ctx context.Context, userId int, fullname, phone, picture *string) (model.User, error) {
+	sql := `
+		UPDATE users
+		SET
+			fullname = $2,
+			phone = $3,
+			picture = $4
+		WHERE id = $1
+		RETURNING id, fullname, phone, picture;
+	`
+
+	args := []any{userId, fullname, phone, picture}
+
+	var user model.User
+	if err := ur.db.QueryRow(ctx, sql, args...).Scan(&user.Id, &user.Fullname, &user.Picture, &user.Phone); err != nil {
+		return model.User{}, err
+	}
+	return user, nil
+}
