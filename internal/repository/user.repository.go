@@ -68,3 +68,48 @@ func (ur *UserRepository) UpdateProfileById(ctx context.Context, userId int, ful
 	}
 	return user, nil
 }
+func (ur *UserRepository) GetPasswordById(ctx context.Context, userId int) (model.User, error) {
+	sql := `
+		SELECT password
+		FROM users
+		WHERE id = $1;
+	`
+
+	args := []any{userId}
+
+	var user model.User
+	if err := ur.db.QueryRow(ctx, sql, args...).Scan(&user.Password); err != nil {
+		return model.User{}, err
+	}
+
+	return user, nil
+}
+
+func (ur *UserRepository) UpdatePasswordById(ctx context.Context, userId int, hashedPassword string) error {
+	sql := `
+		UPDATE users
+		SET
+		password = $2,
+		updated_at = NOW()
+		WHERE id = $1;
+	`
+	args := []any{userId, hashedPassword}
+
+	_, err := ur.db.Exec(ctx, sql, args...)
+	return err
+}
+
+func (ur *UserRepository) UpdatedPinById(ctx context.Context, userId int, pin string) error {
+	sql := `
+		UPDATE users
+		SET
+			pin = $2, 
+			updated_at = NOW()
+		WHERE id = $1		
+	`
+	args := []any{userId, pin}
+
+	_, err := ur.db.Exec(ctx, sql, args...)
+	return err
+
+}

@@ -156,3 +156,77 @@ func (uc *UserController) UpdateProfile(ctx *gin.Context) {
 		Data:    res,
 	})
 }
+
+func (uc *UserController) UpdatePassword(ctx *gin.Context) {
+	claims, ok := ctx.Get("user")
+	userClaims, ok := claims.(*pkg.Claims)
+	if !ok {
+		return
+	}
+
+	var body dto.UserUpdatePasswordReq
+	if err := ctx.ShouldBindWith(&body, binding.JSON); err != nil {
+		ctx.JSON(http.StatusBadRequest, dto.Response{
+			Message: "Bad Request",
+			Success: false,
+		})
+		return
+	}
+
+	if err := uc.userService.UpdatePassword(ctx.Request.Context(), userClaims.Id, body); err != nil {
+		if errors.Is(err, service.ErrInvalidPasswd) {
+			ctx.JSON(http.StatusUnauthorized, dto.Response{
+				Message: "Invalid Current Password",
+				Success: false,
+				Error:   err.Error(),
+			})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, dto.Response{
+			Message: "Status Internal Server Error",
+			Success: false,
+			Error:   err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.Response{
+		Message: "Update Password Successfully",
+		Success: true,
+	})
+}
+
+func (uc *UserController) UpdatePin(ctx *gin.Context) {
+	claims, ok := ctx.Get("user")
+	userClaims, ok := claims.(*pkg.Claims)
+	if !ok {
+		ctx.JSON(http.StatusUnauthorized, dto.Response{
+			Message: "Authentication Failed",
+		})
+		return
+	}
+
+	var body dto.UserUpdatePinReq
+	if err := ctx.ShouldBindWith(&body, binding.JSON); err != nil {
+		ctx.JSON(http.StatusBadRequest, dto.Response{
+			Message: "Format Data Invalid",
+			Error:   err.Error(),
+			Success: false,
+		})
+		return
+
+	}
+	if err := uc.userService.UpdatePin(ctx.Request.Context(), userClaims.Id, body); err != nil {
+
+		ctx.JSON(http.StatusInternalServerError, dto.Response{
+			Message: "Internal Server Error",
+			Success: false,
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, dto.Response{
+		Message: "Update Pin Succesfully",
+		Success: true,
+	})
+
+}

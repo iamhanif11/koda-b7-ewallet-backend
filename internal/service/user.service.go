@@ -6,6 +6,7 @@ import (
 
 	"github.com/iamhanif11/ewallet-backend/internal/dto"
 	"github.com/iamhanif11/ewallet-backend/internal/repository"
+	"github.com/iamhanif11/ewallet-backend/pkg"
 )
 
 type UserService struct {
@@ -13,6 +14,8 @@ type UserService struct {
 }
 
 var ErrPin = errors.New("Please Input PIN")
+var ErrInvalidPin = errors.New("Invalid")
+var ErrInvalidPasswd = errors.New("Invalid Password")
 
 func NewUserService(userRepository *repository.UserRepository) *UserService {
 	return &UserService{
@@ -55,4 +58,25 @@ func (us *UserService) UpdateProfile(ctx context.Context, user_Id int, req dto.U
 		Phone:    *user.Phone,
 		Picture:  *user.Picture,
 	}, nil
+}
+
+func (us *UserService) UpdatePassword(ctx context.Context, userId int, req dto.UserUpdatePasswordReq) error {
+	user, err := us.userRepository.GetPasswordById(ctx, userId)
+	if err != nil {
+		return err
+	}
+
+	var hash pkg.HashConfig
+	if err := hash.Compare(req.CurrentPassword, user.Password); err != nil {
+		return errors.New("Invalid Password")
+	}
+
+	hash.UseRecommended()
+	hashedPassword := hash.GenerateHash(req.NewPassword)
+
+	return us.userRepository.UpdatePasswordById(ctx, userId, hashedPassword)
+}
+
+func (us *UserService) UpdatePin(ctx context.Context, userId int, req dto.UserUpdatePinReq) error {
+	return us.userRepository.UpdatedPinById(ctx, userId, req.Pin)
 }
