@@ -41,3 +41,9 @@ type UserUpdatePasswordRes struct {
 type UserUpdatePinReq struct {
 	Pin string `json:"pin" binding:"required,len=6"`
 }
+
+type UserDashboardInformationRes struct {
+	Balance int `json:"balance"`
+	Income  int `json:"income"`
+	Expense int `json:"expense"`
+}

@@ -230,3 +230,29 @@ func (uc *UserController) UpdatePin(ctx *gin.Context) {
 	})
 
 }
+
+func (uc *UserController) GetDashboardInformation(ctx *gin.Context) {
+	claims, ok := ctx.Get("user")
+	userClaims, ok := claims.(*pkg.Claims)
+	if !ok {
+		ctx.JSON(http.StatusUnauthorized, dto.Response{
+			Message: "Authentication Failed",
+		})
+		return
+	}
+
+	res, err := uc.userService.GetDashboardInformation(ctx.Request.Context(), userClaims.Id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.Response{
+			Message: "Internal Server Error",
+			Error:   err.Error(),
+			Success: false,
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, dto.Response{
+		Message: "Dashboard Information is Displayed",
+		Data:    res,
+		Success: true,
+	})
+}

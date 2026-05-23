@@ -14,6 +14,12 @@ type User struct {
 	UpdateAt  *time.Time `db:"updated_at"`
 }
 
+type UserDashboardInformation struct {
+	Balance int `db:"balance"`
+	Income  int `db:"income"`
+	Expense int `db:"expense"`
+}
+
 // type Wallet struct {
 // 	Id        int        `db:"id"`
 // 	User_id   int        `db:"user_id"`

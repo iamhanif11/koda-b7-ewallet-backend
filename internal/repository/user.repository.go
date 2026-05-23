@@ -111,5 +111,36 @@ func (ur *UserRepository) UpdatedPinById(ctx context.Context, userId int, pin st
 
 	_, err := ur.db.Exec(ctx, sql, args...)
 	return err
+}
 
+func (ur *UserRepository) GetDashboardInformationById(ctx context.Context, userId int) (model.UserDashboardInformation, error) {
+	sql := `
+	SELECT
+		w.balance AS balance,
+		COALESCE(SUM(
+			CASE
+				WHEN t.status = 'completed' AND t.transaction_type IN ('top-up', 'transfer in')
+				THEN t.amount
+				ELSE 0
+			END	
+		), 0) AS income,
+		COALESCE(SUM(
+			CASE
+				WHEN t.status = 'completed' AND t.transaction_type = 'transfer out'
+				THEN t.amount
+				ELSE 0
+			END	
+		), 0) AS expense
+	FROM wallet w
+	LEFT JOIN transactions t ON t.user_id = w.user_id
+	WHERE w.user_id = $1
+	GROUP BY w.id, w.balance;
+	`
+	args := []any{userId}
+
+	var dashboard model.UserDashboardInformation
+	if err := ur.db.QueryRow(ctx, sql, args...).Scan(&dashboard.Balance, &dashboard.Income, &dashboard.Expense); err != nil {
+		return model.UserDashboardInformation{}, err
+	}
+	return dashboard, nil
 }

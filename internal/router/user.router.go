@@ -26,4 +26,5 @@ func UserRouter(router *gin.Engine, db *pgxpool.Pool) {
 	UserRouter.PATCH("/profile", userController.UpdateProfile)
 	UserRouter.PATCH("/password", userController.UpdatePassword)
 	UserRouter.PATCH("/pin", userController.UpdatePin)
+	UserRouter.GET("/wallet", userController.GetDashboardInformation)
 }

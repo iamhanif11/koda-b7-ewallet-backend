@@ -80,3 +80,16 @@ func (us *UserService) UpdatePassword(ctx context.Context, userId int, req dto.U
 func (us *UserService) UpdatePin(ctx context.Context, userId int, req dto.UserUpdatePinReq) error {
 	return us.userRepository.UpdatedPinById(ctx, userId, req.Pin)
 }
+
+func (us *UserService) GetDashboardInformation(ctx context.Context, userId int) (dto.UserDashboardInformationRes, error) {
+	dashboard, err := us.userRepository.GetDashboardInformationById(ctx, userId)
+	if err != nil {
+		return dto.UserDashboardInformationRes{}, err
+	}
+
+	return dto.UserDashboardInformationRes{
+		Balance: dashboard.Balance,
+		Income:  dashboard.Income,
+		Expense: dashboard.Expense,
+	}, nil
+}
