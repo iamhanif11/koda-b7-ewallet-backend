@@ -256,3 +256,38 @@ func (uc *UserController) GetDashboardInformation(ctx *gin.Context) {
 		Success: true,
 	})
 }
+
+func (uc *UserController) GetTransactionReport(ctx *gin.Context) {
+	duration := ctx.DefaultQuery("duration", "7d")
+	if duration != "7d" {
+		ctx.JSON(http.StatusBadRequest, dto.Response{
+			Message: "Bad Request",
+			Success: false,
+		})
+	}
+
+	claims, ok := ctx.Get("user")
+	userClaims, ok := claims.(*pkg.Claims)
+	if !ok {
+		ctx.JSON(http.StatusUnauthorized, dto.Response{
+			Message: "Authentication Failed",
+			Success: false,
+		})
+		return
+	}
+
+	res, err := uc.userService.GetTransactionReport(ctx.Request.Context(), userClaims.Id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.Response{
+			Message: "Internal Server Error",
+			Error:   err.Error(),
+			Success: false,
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, dto.Response{
+		Message: "Get Data Graph Succesfully",
+		Data:    res,
+		Success: true,
+	})
+}

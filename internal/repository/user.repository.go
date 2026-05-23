@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/iamhanif11/ewallet-backend/internal/model"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -143,4 +144,49 @@ func (ur *UserRepository) GetDashboardInformationById(ctx context.Context, userI
 		return model.UserDashboardInformation{}, err
 	}
 	return dashboard, nil
+}
+
+func (ur *UserRepository) GetTransactionReportById(ctx context.Context, userId int, startDate, endDate time.Time)([]model.UserTransactionReport, error){
+	sql :=`
+		SELECT 
+			DATE(t.created_at) AS report_date,
+			COALESCE(SUM(
+				CASE
+					WHEN t.transaction_type IN ('top-up', 'transfer in') THEN t.amount 
+					ELSE 0
+				END
+			), 0) AS income,
+			COALESCE(SUM(
+				CASE
+					WHEN t.transaction_type = 'transfer out' THEN t.amount
+					ELSE 0
+				END
+			), 0) AS expense
+		FROM transactions t
+		WHERE t.user_id = $1
+		AND t.created_at BETWEEN $2 AND $3
+		GROUP BY DATE(t.created_at)
+		ORDER BY report_date ASC;
+	`
+	args := []any{userId, startDate, endDate.AddDate(0,0,1)}
+
+	rows, err := ur.db.Query(ctx, sql, args...)
+	if err != nil{
+		return nil, err
+	}
+	defer rows.Close()
+
+	reports := []model.UserTransactionReport{}
+	for rows.Next() {
+		var report model.UserTransactionReport
+		if err := rows.Scan(&report.Date, &report.Income, &report.Expense); err != nil {
+			return nil, err
+		}
+		reports = append(reports, report)
+	}
+	if err := rows.Err(); err != nil{
+		return nil, err
+	}
+	
+	return reports, nil
 }

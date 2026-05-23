@@ -47,3 +47,10 @@ type UserDashboardInformationRes struct {
 	Income  int `json:"income"`
 	Expense int `json:"expense"`
 }
+
+type UserTransactionReportRes struct {
+	Date    string `json:"date"`
+	Day     string `json:"day"`
+	Income  int    `json:"income"`
+	Expense int    `json:"expense"`
+}

@@ -3,8 +3,10 @@ package service
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/iamhanif11/ewallet-backend/internal/dto"
+	"github.com/iamhanif11/ewallet-backend/internal/model"
 	"github.com/iamhanif11/ewallet-backend/internal/repository"
 	"github.com/iamhanif11/ewallet-backend/pkg"
 )
@@ -92,4 +94,41 @@ func (us *UserService) GetDashboardInformation(ctx context.Context, userId int) 
 		Income:  dashboard.Income,
 		Expense: dashboard.Expense,
 	}, nil
+}
+
+func (us *UserService) GetTransactionReport(ctx context.Context, userId int) ([]dto.UserTransactionReportRes, error) {
+	endDate := time.Now().Truncate(24 * time.Hour)
+	startDate := endDate.AddDate(0, 0, -6)
+
+	reports, err := us.userRepository.GetTransactionReportById(ctx, userId, startDate, endDate)
+	if err != nil {
+		return nil, err
+	}
+
+	reportMap := make(map[string]model.UserTransactionReport, len(reports))
+	for _, report := range reports {
+		reportMap[report.Date.Format(time.DateOnly)] = report
+	}
+
+	res := make([]dto.UserTransactionReportRes, 0, 7)
+	for i := 0; i < 7; i++ {
+		currentDate := startDate.AddDate(0, 0, i)
+		dateStr := currentDate.Format(time.DateOnly)
+
+		data, found := reportMap[dateStr]
+
+		var income, expense int
+		if found {
+			income = data.Income
+			expense = data.Expense
+		}
+
+		res = append(res, dto.UserTransactionReportRes{
+			Date:    dateStr,
+			Day:     currentDate.Format("Mon"),
+			Income:  income,
+			Expense: expense,
+		})
+	}
+	return res, nil
 }
