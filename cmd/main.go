@@ -11,6 +11,16 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// @title						Backend Ewallet
+// @version						1.0
+// @description					Backend created by Hanif using Gin
+// @license.name				MIT
+// @host						localhost:8080
+// @BasePath					/
+// @securityDefinitions.apikey	ApiKeyAuth
+// @in							header
+// @name						Authorization
+// @description					Bearer token used for authorization
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatalf("Error loading env. \ncause: %s", err.Error())

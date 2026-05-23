@@ -1,8 +1,13 @@
 package dto
 
-type Response struct {
+type Response[T any] struct {
 	Message string `json:"message"`
-	Data    any    `json:"data,omitempty"`
+	Data    T      `json:"data,omitempty"`
 	Success bool   `json:"isSucces"`
-	Error   string `json:"error,omitempty"`
+}
+
+type ErrorResponse struct {
+	Message string `json:"message"`
+	Success bool   `json:"isSucces"`
+	Error   string `json:"error"`
 }

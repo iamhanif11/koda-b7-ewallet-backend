@@ -27,7 +27,7 @@ func (m *AuthMiddleware) VerifyToken() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		bearerToken := ctx.GetHeader("Authorization")
 		if bearerToken == "" {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, dto.Response{
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, dto.ErrorResponse{
 				Message: "Unauthorized Access, Please Login",
 				Success: false,
 				Error:   "Unauthorized Access, Please Login",
@@ -36,7 +36,7 @@ func (m *AuthMiddleware) VerifyToken() gin.HandlerFunc {
 		}
 		splittedBearer := strings.Split(bearerToken, " ")
 		if len(splittedBearer) != 2 {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, dto.Response{
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, dto.ErrorResponse{
 				Message: "Unauthorized Access, Please Login",
 				Success: false,
 				Error:   "Invalid Token",
@@ -48,14 +48,14 @@ func (m *AuthMiddleware) VerifyToken() gin.HandlerFunc {
 		if err := claims.VerifyJWT(token); err != nil {
 			log.Println("Error: ", err.Error())
 			if errors.Is(err, jwt.ErrTokenInvalidIssuer) || errors.Is(err, jwt.ErrTokenExpired) {
-				ctx.AbortWithStatusJSON(http.StatusUnauthorized, dto.Response{
+				ctx.AbortWithStatusJSON(http.StatusUnauthorized, dto.ErrorResponse{
 					Message: "Error",
 					Success: false,
 					Error:   err.Error(),
 				})
 				return
 			}
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, dto.Response{
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, dto.ErrorResponse{
 				Message: "Error",
 				Success: false,
 				Error:   "Internal Server Error",

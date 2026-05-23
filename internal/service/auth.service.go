@@ -37,7 +37,7 @@ func (as *AuthService) RegisterUser(ctx context.Context, user dto.NewUser) (dto.
 }
 
 // login
-func (as *AuthService) LoginUser(ctx context.Context, user dto.User) (string, dto.User, error) {
+func (as *AuthService) LoginUser(ctx context.Context, user dto.Login) (string, dto.User, error) {
 	log.Println(user)
 	login, err := as.authRepository.GetUserByEmail(ctx, user.Email)
 	if err != nil {
