@@ -235,15 +235,6 @@ definitions:
       picture:
         type: string
     type: object
-  github_com_iamhanif11_ewallet-backend_internal_dto.UserUpdateProfileReq:
-    properties:
-      fullname:
-        type: string
-      phone:
-        type: string
-      picture:
-        type: string
-    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -467,7 +458,7 @@ paths:
       - user
     patch:
       consumes:
-      - application/json
+      - multipart/form-data
       description: Update detailed information of the currently logged in user
       parameters:
       - description: Bearer <token>
@@ -475,12 +466,18 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: Update Profile Data
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.UserUpdateProfileReq'
+      - description: Update Fullname
+        in: formData
+        name: fullname
+        type: string
+      - description: Update Phone
+        in: formData
+        name: phone
+        type: string
+      - description: Update Profile Picture
+        in: formData
+        name: picture
+        type: file
       produces:
       - application/json
       responses:
@@ -494,6 +491,10 @@ paths:
             $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
         "401":
           description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
           schema:
             $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
         "500":

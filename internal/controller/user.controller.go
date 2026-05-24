@@ -2,8 +2,12 @@ package controller
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
+	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -154,14 +158,17 @@ func (uc *UserController) CheckPin(ctx *gin.Context) {
 //	@Summary		Update User Profile
 //	@Description	Update detailed information of the currently logged in user
 //	@Tags			user
-//	@Accept			json
+//	@Accept			multipart/form-data
 //	@Produce		json
 //	@Param			Authorization	header	string						true	"Bearer <token>"
-//	@Param			request			body	dto.UserUpdateProfileReq	true	"Update Profile Data"
+//	@Param			fullname		formData	string	false	"Update Fullname"
+//	@Param			phone			formData	string	false	"Update Phone"
+//	@Param			picture			formData	file	false	"Update Profile Picture"
 //	@Success		202	{object}	dto.Response[dto.UserUpdateProfilRes]
 //	@Failure		500	{object}	dto.ErrorResponse
 //	@Failure		400	{object}	dto.ErrorResponse
 //	@Failure		401	{object}	dto.ErrorResponse
+//	@Failure		422	{object}	dto.ErrorResponse
 //	@Router			/user/profile 	[patch]
 func (uc *UserController) UpdateProfile(ctx *gin.Context) {
 	claims, ok := ctx.Get("user")
@@ -171,16 +178,51 @@ func (uc *UserController) UpdateProfile(ctx *gin.Context) {
 	}
 
 	var body dto.UserUpdateProfileReq
-	if err := ctx.ShouldBindBodyWith(&body, binding.JSON); err != nil {
+	if err := ctx.ShouldBind(&body); err != nil {
 		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
-			Message: "Invalid",
+			Message: "Invalid Input Data",
 			Success: false,
 			Error:   err.Error(),
 		})
 		return
 	}
+	var pictureURL *string
 
-	res, err := uc.userService.UpdateProfile(ctx.Request.Context(), userClaims.Id, body)
+	if body.Picture != nil {
+		const maxUploadSize = 1024 * 1024
+		if body.Picture.Size > maxUploadSize {
+			ctx.JSON(http.StatusUnprocessableEntity, dto.ErrorResponse{
+				Message: "File too large",
+				Success: false,
+			})
+			return
+		}
+	}
+
+	ext := strings.ToLower(filepath.Ext(body.Picture.Filename))
+	if ext != ".jpg" && ext != ".jpeg" && ext != ".png" {
+		ctx.JSON(http.StatusUnprocessableEntity, dto.ErrorResponse{
+			Message: "Invalid file format",
+			Success: false,
+		})
+		return
+	}
+
+	filename := fmt.Sprintf("user_%d%s", time.Now().UnixNano(), ext)
+	dst := filepath.Join("public", "img", "profiles", filename)
+
+	if err := ctx.SaveUploadedFile(body.Picture, dst); err != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Message: "Failed to save image",
+			Success: false,
+		})
+		return
+	}
+
+	generatedURL := "/img/profile" + filename
+	pictureURL = &generatedURL
+
+	res, err := uc.userService.UpdateProfile(ctx.Request.Context(), userClaims.Id, body, pictureURL)
 	log.Println(res)
 	if err != nil {
 		log.Println("err: ", err)

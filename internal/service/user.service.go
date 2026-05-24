@@ -49,11 +49,12 @@ func (us *UserService) CheckPin(ctx context.Context, user_Id int, pin string) (d
 	return dto.UserCheckPinRes{IsValid: true}, nil
 }
 
-func (us *UserService) UpdateProfile(ctx context.Context, user_Id int, req dto.UserUpdateProfileReq) (dto.UserUpdateProfilRes, error) {
-	user, err := us.userRepository.UpdateProfileById(ctx, user_Id, req.Fullname, req.Phone, req.Picture)
+func (us *UserService) UpdateProfile(ctx context.Context, user_Id int, req dto.UserUpdateProfileReq, pictureURL *string) (dto.UserUpdateProfilRes, error) {
+	user, err := us.userRepository.UpdateProfileById(ctx, user_Id, req.Fullname, req.Phone, pictureURL)
 	if err != nil {
 		return dto.UserUpdateProfilRes{}, err
 	}
+
 	return dto.UserUpdateProfilRes{
 		Fullname: *user.Fullname,
 		Email:    user.Email,

@@ -1,5 +1,7 @@
 package dto
 
+import "mime/multipart"
+
 type UserProfileRes struct {
 	Fullname *string `json:"fullname"`
 	Email    string  `json:"email"`
@@ -14,9 +16,9 @@ type UserCheckPinReq struct {
 }
 
 type UserUpdateProfileReq struct {
-	Fullname *string `json:"fullname"`
-	Phone    *string `json:"phone"`
-	Picture  *string `json:"picture"`
+	Fullname *string               `form:"fullname"`
+	Phone    *string               `form:"phone"`
+	Picture  *multipart.FileHeader `form:"picture" binding:"omitempty"`
 }
 
 type UserUpdateProfilRes struct {

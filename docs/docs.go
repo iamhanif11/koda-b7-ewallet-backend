@@ -342,7 +342,7 @@ const docTemplate = `{
             "patch": {
                 "description": "Update detailed information of the currently logged in user",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -360,13 +360,22 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Update Profile Data",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.UserUpdateProfileReq"
-                        }
+                        "type": "string",
+                        "description": "Update Fullname",
+                        "name": "fullname",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Update Phone",
+                        "name": "phone",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "file",
+                        "description": "Update Profile Picture",
+                        "name": "picture",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -384,6 +393,12 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
                         "schema": {
                             "$ref": "#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse"
                         }
@@ -910,20 +925,6 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
-                "fullname": {
-                    "type": "string"
-                },
-                "phone": {
-                    "type": "string"
-                },
-                "picture": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_iamhanif11_ewallet-backend_internal_dto.UserUpdateProfileReq": {
-            "type": "object",
-            "properties": {
                 "fullname": {
                     "type": "string"
                 },
