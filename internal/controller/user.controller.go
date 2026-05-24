@@ -24,6 +24,19 @@ func NewUserController(userService *service.UserService) *UserController {
 	}
 }
 
+// Profile User
+//
+//	@Summary		Get current user Profile
+//	@Description	retrieved detailed information of currently logged in
+//	@Tags			user
+//	@Accept			json
+//	@Produce		json
+//	@Param			Authorization	header	string	true	"<token>"
+//	@Success		200	{object}	dto.Response[dto.UserProfileRes]
+//	@Failure		500	{object}	dto.ErrorResponse
+//	@Failure		401	{object}	dto.ErrorResponse
+//	@Failure		404	{object}	dto.ErrorResponse
+//	@Router			/user/profile [get]
 func (uc *UserController) GetProfile(ctx *gin.Context) {
 	claims, ok := ctx.Get("user")
 
@@ -67,6 +80,20 @@ func (uc *UserController) GetProfile(ctx *gin.Context) {
 	})
 }
 
+// Check PIN
+//
+//	@Summary		Check pin user
+//	@Description	Verify if the provided pin is correct for the logged in user
+//	@Tags			user
+//	@Accept			json
+//	@Produce		json
+//	@Param			Authorization	header	string				true	"Bearer <token>"
+//	@Param			payload			body	dto.UserCheckPinReq	true	"PIN payload"
+//	@Success		202	{object}	dto.Response[dto.UserCheckPinRes]
+//	@Failure		500	{object}	dto.ErrorResponse
+//	@Failure		400	{object}	dto.ErrorResponse
+//	@Failure		401	{object}	dto.ErrorResponse
+//	@Router			/user/profile/pin/check [post]
 func (uc *UserController) CheckPin(ctx *gin.Context) {
 	claims, ok := ctx.Get("user")
 	userClaims, ok := claims.(*pkg.Claims)
@@ -122,6 +149,20 @@ func (uc *UserController) CheckPin(ctx *gin.Context) {
 
 }
 
+// Update Profile
+//
+//	@Summary		Update User Profile
+//	@Description	Update detailed information of the currently logged in user
+//	@Tags			user
+//	@Accept			json
+//	@Produce		json
+//	@Param			Authorization	header	string						true	"Bearer <token>"
+//	@Param			request			body	dto.UserUpdateProfileReq	true	"Update Profile Data"
+//	@Success		202	{object}	dto.Response[dto.UserUpdateProfilRes]
+//	@Failure		500	{object}	dto.ErrorResponse
+//	@Failure		400	{object}	dto.ErrorResponse
+//	@Failure		401	{object}	dto.ErrorResponse
+//	@Router			/user/profile 	[patch]
 func (uc *UserController) UpdateProfile(ctx *gin.Context) {
 	claims, ok := ctx.Get("user")
 	userClaims, ok := claims.(*pkg.Claims)
@@ -157,6 +198,20 @@ func (uc *UserController) UpdateProfile(ctx *gin.Context) {
 	})
 }
 
+// Update Password
+//
+//	@Summary		Update User Password
+//	@Description	Change the current user password to new password
+//	@Tags			user
+//	@Accept			json
+//	@Produce		json
+//	@Param			Authorization	header	string						true	"Bearer <token>"
+//	@Param			request			body	dto.UserUpdatePasswordReq	true	"Password Update"
+//	@Success		202	{object}	dto.Response[any]
+//	@Failure		500	{object}	dto.ErrorResponse
+//	@Failure		400	{object}	dto.ErrorResponse
+//	@Failure		401	{object}	dto.ErrorResponse
+//	@Router			/user/password 	[patch]
 func (uc *UserController) UpdatePassword(ctx *gin.Context) {
 	claims, ok := ctx.Get("user")
 	userClaims, ok := claims.(*pkg.Claims)
@@ -196,6 +251,20 @@ func (uc *UserController) UpdatePassword(ctx *gin.Context) {
 	})
 }
 
+// Update PIN
+//
+//	@Summary		Update User PIN
+//	@Description	Change or set new security PIN for the user
+//	@Tags			user
+//	@Accept			json
+//	@Produce		json
+//	@Param			Authorization	header	string						true	"Bearer <token>"
+//	@Param			request			body	dto.UserUpdatePinReq		true	"PIN Update"
+//	@Success		200	{object}	dto.Response[any]
+//	@Failure		500	{object}	dto.ErrorResponse
+//	@Failure		400	{object}	dto.ErrorResponse
+//	@Failure		401	{object}	dto.ErrorResponse
+//	@Router			/user/pin	 	[patch]
 func (uc *UserController) UpdatePin(ctx *gin.Context) {
 	claims, ok := ctx.Get("user")
 	userClaims, ok := claims.(*pkg.Claims)
@@ -231,6 +300,18 @@ func (uc *UserController) UpdatePin(ctx *gin.Context) {
 
 }
 
+// Get Dashboard Info
+//
+//	@Summary		Get user Dashboard information
+//	@Description	Retrieve data for the user dashboard
+//	@Tags			user
+//	@Produce		json
+//	@Param			Authorization	header	string						true	"Bearer <token>"
+//	@Success		200	{object}	dto.Response[dto.UserDashboardInformationRes]
+//	@Failure		500	{object}	dto.ErrorResponse
+//	@Failure		400	{object}	dto.ErrorResponse
+//	@Failure		401	{object}	dto.ErrorResponse
+//	@Router			/user/wallet	[get]
 func (uc *UserController) GetDashboardInformation(ctx *gin.Context) {
 	claims, ok := ctx.Get("user")
 	userClaims, ok := claims.(*pkg.Claims)
@@ -257,6 +338,19 @@ func (uc *UserController) GetDashboardInformation(ctx *gin.Context) {
 	})
 }
 
+// Get Transaction
+//
+//	@Summary		Get User Transaction Report
+//	@Description	Retrieve transaction reports with duration
+//	@Tags			user
+//	@Produce		json
+//	@Param			Authorization	header	string									true	"Bearer <token>"
+//	@Param			duration		query 	string									false	"Duration of report, default is 7d" default(7d)
+//	@Success		200	{object}	dto.Response[[]dto.UserTransactionReportRes]
+//	@Failure		500	{object}	dto.ErrorResponse
+//	@Failure		400	{object}	dto.ErrorResponse
+//	@Failure		401	{object}	dto.ErrorResponse
+//	@Router			/user/reports	[get]
 func (uc *UserController) GetTransactionReport(ctx *gin.Context) {
 	duration := ctx.DefaultQuery("duration", "7d")
 	if duration != "7d" {

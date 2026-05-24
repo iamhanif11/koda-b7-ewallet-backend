@@ -10,7 +10,7 @@ type UserCheckPinRes struct {
 	IsValid bool `json:"isvalid"`
 }
 type UserCheckPinReq struct {
-	Pin string `json:"pin" binding:"required, len=6"`
+	Pin string `json:"pin" binding:"required,len=6"`
 }
 
 type UserUpdateProfileReq struct {
@@ -39,7 +39,7 @@ type UserUpdatePasswordRes struct {
 }
 
 type UserUpdatePinReq struct {
-	Pin string `json:"pin" binding:"required,len=6"`
+	Pin string `json:"pin" binding:"required,numeric,len=6"`
 }
 
 type UserDashboardInformationRes struct {

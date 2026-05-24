@@ -1,0 +1,85 @@
+package controller
+
+import (
+	"net/http"
+	"strconv"
+	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/iamhanif11/ewallet-backend/internal/dto"
+	"github.com/iamhanif11/ewallet-backend/internal/service"
+	"github.com/iamhanif11/ewallet-backend/pkg"
+)
+
+type TransactionController struct {
+	transactionService *service.TransactionService
+}
+
+func NewTransactionController(transactionService *service.TransactionService) *TransactionController {
+	return &TransactionController{
+		transactionService: transactionService,
+	}
+}
+
+// Find Receivers
+//
+//	@Summary		Search and Retriever Receiver List
+//	@Description	List other users for transfer purpose with search and pagination
+//	@Tags			transactions
+//	@Accept			json
+//	@Produce		json
+//	@Param			Authorization	header	string				true	"Bearer <token>"
+//	@Param			search			query	string		false	"Search keyword by name and phone"
+//	@Param			page			query	int			false	"Page Number"
+//	@Param			limit			query	int			false	"Max data per page"
+//	@Success		200	{object}	dto.Response[dto.ReceiverListResponse]
+//	@Failure		500	{object}	dto.ErrorResponse
+//	@Failure		400	{object}	dto.ErrorResponse
+//	@Failure		401	{object}	dto.ErrorResponse
+//	@Router			/transaction/receivers 	[get]
+func (tc *TransactionController) FindReceivers(ctx *gin.Context) {
+	claims, ok := ctx.Get("user")
+	userClaims, ok := claims.(*pkg.Claims)
+	if !ok {
+		ctx.JSON(http.StatusUnauthorized, dto.ErrorResponse{
+			Message: "Authentication Failed",
+			Success: false,
+		})
+		return
+	}
+
+	page, err := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	if err != nil || page < 1 {
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Message: "Invalid page parameter",
+			Success: false,
+		})
+		return
+	}
+
+	limit, err := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
+	if err != nil || limit < 1 {
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Message: "Invalid Limit Parameter",
+			Success: false,
+		})
+		return
+	}
+
+	search := strings.TrimSpace(ctx.DefaultQuery("search", ""))
+
+	res, err := tc.transactionService.FindReceivers(ctx.Request.Context(), userClaims.Id, search, page, limit)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Message: "Failed to Retrieve Receiver List",
+			Success: false,
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.Response[dto.ReceiverListResponse]{
+		Message: "Get Receivers Succesfully",
+		Data:    res,
+		Success: true,
+	})
+}
