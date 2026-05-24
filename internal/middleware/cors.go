@@ -12,10 +12,10 @@ func CORSMiddleware(ctx *gin.Context) {
 	allowedOrigin := []string{"http://127.0.0.1:5500"}
 	currentOrigin := ctx.GetHeader("Origin")
 	if slices.Contains(allowedOrigin, currentOrigin) {
-		ctx.Header("Acces-Control-Allow-Origin", currentOrigin)
+		ctx.Header("Access-Control-Allow-Origin", currentOrigin)
 	}
 
-	allowedHeaders := []string{"Content-Type", "X-Wallet-X"}
+	allowedHeaders := []string{"Content-Type", "X-Wallet-X", "Authorization"}
 	ctx.Header("Access-Control-Allow-Headers", strings.Join(allowedHeaders, ", "))
 
 	allowedMethods := []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodPatch, http.MethodOptions}
