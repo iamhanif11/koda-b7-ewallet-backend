@@ -19,7 +19,14 @@ func NewAuthRepository(db *pgxpool.Pool) *AuthRepository {
 }
 
 func (ar *AuthRepository) AddUser(ctx context.Context, email, hashPassword string) (model.User, error) {
-	sql := `WITh register AS(INSERT INTO users(email, password) VALUES ($1, $2) RETURNING id, email, created_at), create_wallet AS ( INSERT INTO wallet (user_id) SELECT id FROM register) SELECT id, email, created_at FROM register;`
+	sql := `WITh register AS(
+	INSERT INTO users(email, password) VALUES ($1, $2) 
+	RETURNING id, email, created_at
+	), 
+	create_wallet AS ( 
+	INSERT INTO wallet (user_id) SELECT id FROM register
+	) 
+	SELECT id, email, created_at FROM register;`
 	log.Println(email, hashPassword)
 	args := []any{email, hashPassword}
 

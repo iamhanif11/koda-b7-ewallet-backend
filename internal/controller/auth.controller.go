@@ -36,9 +36,9 @@ func (a *AuthController) Register(ctx *gin.Context) {
 	if err := ctx.ShouldBindWith(&body, binding.JSON); err != nil {
 		log.Println("Error: ", err.Error())
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-			Message: "Error",
+			Message: "Registration failed",
 			Success: false,
-			Error:   "Internal Server Error",
+			Error:   err.Error(),
 		})
 		return
 	}
@@ -46,7 +46,7 @@ func (a *AuthController) Register(ctx *gin.Context) {
 	if err != nil {
 		log.Println("Error: ", err.Error())
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-			Message: "Error",
+			Message: "Email is Registered",
 			Success: false,
 			Error:   "Internal Server Error",
 		})

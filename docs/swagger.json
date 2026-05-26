@@ -168,6 +168,11 @@
         },
         "/user/password": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Change the current user password to new password",
                 "consumes": [
                     "application/json"
@@ -180,13 +185,6 @@
                 ],
                 "summary": "Update User Password",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer \u003ctoken\u003e",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "description": "Password Update",
                         "name": "request",
@@ -227,6 +225,11 @@
         },
         "/user/pin": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Change or set new security PIN for the user",
                 "consumes": [
                     "application/json"
@@ -239,13 +242,6 @@
                 ],
                 "summary": "Update User PIN",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer \u003ctoken\u003e",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "description": "PIN Update",
                         "name": "request",
@@ -286,6 +282,11 @@
         },
         "/user/profile": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "retrieved detailed information of currently logged in",
                 "consumes": [
                     "application/json"
@@ -297,15 +298,6 @@
                     "user"
                 ],
                 "summary": "Get current user Profile",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "\u003ctoken\u003e",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -334,6 +326,11 @@
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update detailed information of the currently logged in user",
                 "consumes": [
                     "multipart/form-data"
@@ -346,13 +343,6 @@
                 ],
                 "summary": "Update User Profile",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer \u003ctoken\u003e",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "type": "string",
                         "description": "Update Fullname",
@@ -408,6 +398,11 @@
         },
         "/user/profile/pin/check": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Verify if the provided pin is correct for the logged in user",
                 "consumes": [
                     "application/json"
@@ -420,13 +415,6 @@
                 ],
                 "summary": "Check pin user",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer \u003ctoken\u003e",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "description": "PIN payload",
                         "name": "payload",
@@ -467,6 +455,11 @@
         },
         "/user/reports": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve transaction reports with duration",
                 "produces": [
                     "application/json"
@@ -476,13 +469,6 @@
                 ],
                 "summary": "Get User Transaction Report",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer \u003ctoken\u003e",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "type": "string",
                         "default": "7d",
@@ -521,6 +507,11 @@
         },
         "/user/wallet": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve data for the user dashboard",
                 "produces": [
                     "application/json"
@@ -529,15 +520,6 @@
                     "user"
                 ],
                 "summary": "Get user Dashboard information",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer \u003ctoken\u003e",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",

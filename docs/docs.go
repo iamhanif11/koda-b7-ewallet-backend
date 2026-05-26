@@ -174,6 +174,11 @@ const docTemplate = `{
         },
         "/user/password": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Change the current user password to new password",
                 "consumes": [
                     "application/json"
@@ -186,13 +191,6 @@ const docTemplate = `{
                 ],
                 "summary": "Update User Password",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer \u003ctoken\u003e",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "description": "Password Update",
                         "name": "request",
@@ -233,6 +231,11 @@ const docTemplate = `{
         },
         "/user/pin": {
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Change or set new security PIN for the user",
                 "consumes": [
                     "application/json"
@@ -245,13 +248,6 @@ const docTemplate = `{
                 ],
                 "summary": "Update User PIN",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer \u003ctoken\u003e",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "description": "PIN Update",
                         "name": "request",
@@ -292,6 +288,11 @@ const docTemplate = `{
         },
         "/user/profile": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "retrieved detailed information of currently logged in",
                 "consumes": [
                     "application/json"
@@ -303,15 +304,6 @@ const docTemplate = `{
                     "user"
                 ],
                 "summary": "Get current user Profile",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "\u003ctoken\u003e",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -340,6 +332,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update detailed information of the currently logged in user",
                 "consumes": [
                     "multipart/form-data"
@@ -352,13 +349,6 @@ const docTemplate = `{
                 ],
                 "summary": "Update User Profile",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer \u003ctoken\u003e",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "type": "string",
                         "description": "Update Fullname",
@@ -414,6 +404,11 @@ const docTemplate = `{
         },
         "/user/profile/pin/check": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Verify if the provided pin is correct for the logged in user",
                 "consumes": [
                     "application/json"
@@ -426,13 +421,6 @@ const docTemplate = `{
                 ],
                 "summary": "Check pin user",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer \u003ctoken\u003e",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "description": "PIN payload",
                         "name": "payload",
@@ -473,6 +461,11 @@ const docTemplate = `{
         },
         "/user/reports": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve transaction reports with duration",
                 "produces": [
                     "application/json"
@@ -482,13 +475,6 @@ const docTemplate = `{
                 ],
                 "summary": "Get User Transaction Report",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer \u003ctoken\u003e",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "type": "string",
                         "default": "7d",
@@ -527,6 +513,11 @@ const docTemplate = `{
         },
         "/user/wallet": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Retrieve data for the user dashboard",
                 "produces": [
                     "application/json"
@@ -535,15 +526,6 @@ const docTemplate = `{
                     "user"
                 ],
                 "summary": "Get user Dashboard information",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer \u003ctoken\u003e",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",

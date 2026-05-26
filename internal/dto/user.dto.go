@@ -18,7 +18,7 @@ type UserCheckPinReq struct {
 type UserUpdateProfileReq struct {
 	Fullname *string               `form:"fullname"`
 	Phone    *string               `form:"phone"`
-	Picture  *multipart.FileHeader `form:"picture" binding:"omitempty"`
+	Picture  *multipart.FileHeader `form:"picture,omitempty"`
 }
 
 type UserUpdateProfilRes struct {

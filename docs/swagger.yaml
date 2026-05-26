@@ -351,11 +351,6 @@ paths:
       - application/json
       description: Change the current user password to new password
       parameters:
-      - description: Bearer <token>
-        in: header
-        name: Authorization
-        required: true
-        type: string
       - description: Password Update
         in: body
         name: request
@@ -381,6 +376,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update User Password
       tags:
       - user
@@ -390,11 +387,6 @@ paths:
       - application/json
       description: Change or set new security PIN for the user
       parameters:
-      - description: Bearer <token>
-        in: header
-        name: Authorization
-        required: true
-        type: string
       - description: PIN Update
         in: body
         name: request
@@ -420,6 +412,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update User PIN
       tags:
       - user
@@ -428,12 +422,6 @@ paths:
       consumes:
       - application/json
       description: retrieved detailed information of currently logged in
-      parameters:
-      - description: <token>
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -453,6 +441,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get current user Profile
       tags:
       - user
@@ -461,11 +451,6 @@ paths:
       - multipart/form-data
       description: Update detailed information of the currently logged in user
       parameters:
-      - description: Bearer <token>
-        in: header
-        name: Authorization
-        required: true
-        type: string
       - description: Update Fullname
         in: formData
         name: fullname
@@ -501,6 +486,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Update User Profile
       tags:
       - user
@@ -510,11 +497,6 @@ paths:
       - application/json
       description: Verify if the provided pin is correct for the logged in user
       parameters:
-      - description: Bearer <token>
-        in: header
-        name: Authorization
-        required: true
-        type: string
       - description: PIN payload
         in: body
         name: payload
@@ -540,6 +522,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Check pin user
       tags:
       - user
@@ -547,11 +531,6 @@ paths:
     get:
       description: Retrieve transaction reports with duration
       parameters:
-      - description: Bearer <token>
-        in: header
-        name: Authorization
-        required: true
-        type: string
       - default: 7d
         description: Duration of report, default is 7d
         in: query
@@ -576,18 +555,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get User Transaction Report
       tags:
       - user
   /user/wallet:
     get:
       description: Retrieve data for the user dashboard
-      parameters:
-      - description: Bearer <token>
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -607,6 +582,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Get user Dashboard information
       tags:
       - user

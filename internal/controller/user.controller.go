@@ -33,9 +33,9 @@ func NewUserController(userService *service.UserService) *UserController {
 //	@Summary		Get current user Profile
 //	@Description	retrieved detailed information of currently logged in
 //	@Tags			user
+//	@Security		ApiKeyAuth
 //	@Accept			json
 //	@Produce		json
-//	@Param			Authorization	header	string	true	"<token>"
 //	@Success		200	{object}	dto.Response[dto.UserProfileRes]
 //	@Failure		500	{object}	dto.ErrorResponse
 //	@Failure		401	{object}	dto.ErrorResponse
@@ -91,7 +91,7 @@ func (uc *UserController) GetProfile(ctx *gin.Context) {
 //	@Tags			user
 //	@Accept			json
 //	@Produce		json
-//	@Param			Authorization	header	string				true	"Bearer <token>"
+//	@Security		ApiKeyAuth
 //	@Param			payload			body	dto.UserCheckPinReq	true	"PIN payload"
 //	@Success		202	{object}	dto.Response[dto.UserCheckPinRes]
 //	@Failure		500	{object}	dto.ErrorResponse
@@ -160,7 +160,7 @@ func (uc *UserController) CheckPin(ctx *gin.Context) {
 //	@Tags			user
 //	@Accept			multipart/form-data
 //	@Produce		json
-//	@Param			Authorization	header	string						true	"Bearer <token>"
+//	@Security		ApiKeyAuth
 //	@Param			fullname		formData	string	false	"Update Fullname"
 //	@Param			phone			formData	string	false	"Update Phone"
 //	@Param			picture			formData	file	false	"Update Profile Picture"
@@ -247,7 +247,7 @@ func (uc *UserController) UpdateProfile(ctx *gin.Context) {
 //	@Tags			user
 //	@Accept			json
 //	@Produce		json
-//	@Param			Authorization	header	string						true	"Bearer <token>"
+//	@Security		ApiKeyAuth
 //	@Param			request			body	dto.UserUpdatePasswordReq	true	"Password Update"
 //	@Success		202	{object}	dto.Response[any]
 //	@Failure		500	{object}	dto.ErrorResponse
@@ -300,7 +300,7 @@ func (uc *UserController) UpdatePassword(ctx *gin.Context) {
 //	@Tags			user
 //	@Accept			json
 //	@Produce		json
-//	@Param			Authorization	header	string						true	"Bearer <token>"
+//	@Security		ApiKeyAuth
 //	@Param			request			body	dto.UserUpdatePinReq		true	"PIN Update"
 //	@Success		200	{object}	dto.Response[any]
 //	@Failure		500	{object}	dto.ErrorResponse
@@ -348,7 +348,7 @@ func (uc *UserController) UpdatePin(ctx *gin.Context) {
 //	@Description	Retrieve data for the user dashboard
 //	@Tags			user
 //	@Produce		json
-//	@Param			Authorization	header	string						true	"Bearer <token>"
+//	@Security		ApiKeyAuth
 //	@Success		200	{object}	dto.Response[dto.UserDashboardInformationRes]
 //	@Failure		500	{object}	dto.ErrorResponse
 //	@Failure		400	{object}	dto.ErrorResponse
@@ -386,7 +386,7 @@ func (uc *UserController) GetDashboardInformation(ctx *gin.Context) {
 //	@Description	Retrieve transaction reports with duration
 //	@Tags			user
 //	@Produce		json
-//	@Param			Authorization	header	string									true	"Bearer <token>"
+//	@Security		ApiKeyAuth
 //	@Param			duration		query 	string									false	"Duration of report, default is 7d" default(7d)
 //	@Success		200	{object}	dto.Response[[]dto.UserTransactionReportRes]
 //	@Failure		500	{object}	dto.ErrorResponse
