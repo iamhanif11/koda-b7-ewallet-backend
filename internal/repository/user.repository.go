@@ -54,9 +54,9 @@ func (ur *UserRepository) UpdateProfileById(ctx context.Context, userId int, ful
 	sql := `
 		UPDATE users
 		SET
-			fullname = $2,
-			phone = $3,
-			picture = $4
+			fullname = COALESCE($2, fullname),
+			phone = COALESCE($3, phone),
+			picture = COALESCE($4, picture)
 		WHERE id = $1
 		RETURNING id, fullname, phone, picture;
 	`
@@ -64,10 +64,18 @@ func (ur *UserRepository) UpdateProfileById(ctx context.Context, userId int, ful
 	args := []any{userId, fullname, phone, picture}
 
 	var user model.User
-	if err := ur.db.QueryRow(ctx, sql, args...).Scan(&user.Id, &user.Fullname, &user.Picture, &user.Phone); err != nil {
+	err := ur.db.QueryRow(ctx, sql, args...).Scan(
+		&user.Id,
+		&user.Fullname,
+		&user.Phone,
+		&user.Picture,
+	)
+
+	if err != nil {
 		return model.User{}, err
 	}
 	return user, nil
+
 }
 func (ur *UserRepository) GetPasswordById(ctx context.Context, userId int) (model.User, error) {
 	sql := `
@@ -146,8 +154,8 @@ func (ur *UserRepository) GetDashboardInformationById(ctx context.Context, userI
 	return dashboard, nil
 }
 
-func (ur *UserRepository) GetTransactionReportById(ctx context.Context, userId int, startDate, endDate time.Time)([]model.UserTransactionReport, error){
-	sql :=`
+func (ur *UserRepository) GetTransactionReportById(ctx context.Context, userId int, startDate, endDate time.Time) ([]model.UserTransactionReport, error) {
+	sql := `
 		SELECT 
 			DATE(t.created_at) AS report_date,
 			COALESCE(SUM(
@@ -168,10 +176,10 @@ func (ur *UserRepository) GetTransactionReportById(ctx context.Context, userId i
 		GROUP BY DATE(t.created_at)
 		ORDER BY report_date ASC;
 	`
-	args := []any{userId, startDate, endDate.AddDate(0,0,1)}
+	args := []any{userId, startDate, endDate.AddDate(0, 0, 1)}
 
 	rows, err := ur.db.Query(ctx, sql, args...)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
@@ -184,9 +192,9 @@ func (ur *UserRepository) GetTransactionReportById(ctx context.Context, userId i
 		}
 		reports = append(reports, report)
 	}
-	if err := rows.Err(); err != nil{
+	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	
+
 	return reports, nil
 }

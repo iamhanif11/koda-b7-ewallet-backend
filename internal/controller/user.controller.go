@@ -197,37 +197,38 @@ func (uc *UserController) UpdateProfile(ctx *gin.Context) {
 			})
 			return
 		}
+
+		ext := strings.ToLower(filepath.Ext(body.Picture.Filename))
+		log.Println(ext)
+		if ext != ".jpg" && ext != ".jpeg" && ext != ".png" {
+			ctx.JSON(http.StatusUnprocessableEntity, dto.ErrorResponse{
+				Message: "Invalid file format",
+				Success: false,
+			})
+			return
+		}
+
+		filename := fmt.Sprintf("user_%d%s", time.Now().UnixNano(), ext)
+		dst := filepath.Join("public", "img", "profiles", filename)
+
+		if err := ctx.SaveUploadedFile(body.Picture, dst); err != nil {
+			ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+				Message: "Failed to save image",
+				Success: false,
+			})
+			return
+		}
+
+		generatedURL := "/img/profile" + filename
+		pictureURL = &generatedURL
 	}
-
-	ext := strings.ToLower(filepath.Ext(body.Picture.Filename))
-	if ext != ".jpg" && ext != ".jpeg" && ext != ".png" {
-		ctx.JSON(http.StatusUnprocessableEntity, dto.ErrorResponse{
-			Message: "Invalid file format",
-			Success: false,
-		})
-		return
-	}
-
-	filename := fmt.Sprintf("user_%d%s", time.Now().UnixNano(), ext)
-	dst := filepath.Join("public", "img", "profiles", filename)
-
-	if err := ctx.SaveUploadedFile(body.Picture, dst); err != nil {
-		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-			Message: "Failed to save image",
-			Success: false,
-		})
-		return
-	}
-
-	generatedURL := "/img/profile" + filename
-	pictureURL = &generatedURL
 
 	res, err := uc.userService.UpdateProfile(ctx.Request.Context(), userClaims.Id, body, pictureURL)
 	log.Println(res)
 	if err != nil {
 		log.Println("err: ", err)
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-			Message: "Internal Server Error",
+			Message: "Upload Failed",
 			Success: false,
 		})
 		return

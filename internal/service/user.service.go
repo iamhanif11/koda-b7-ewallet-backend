@@ -55,11 +55,23 @@ func (us *UserService) UpdateProfile(ctx context.Context, user_Id int, req dto.U
 		return dto.UserUpdateProfilRes{}, err
 	}
 
+	var fullname, phone, picture string
+
+	if user.Fullname != nil {
+		fullname = *user.Fullname
+	}
+
+	if user.Phone != nil {
+		phone = *user.Phone
+	}
+
+	if user.Picture != nil {
+		picture = *user.Picture
+	}
 	return dto.UserUpdateProfilRes{
-		Fullname: *user.Fullname,
-		Email:    user.Email,
-		Phone:    *user.Phone,
-		Picture:  *user.Picture,
+		Fullname: fullname,
+		Phone:    phone,
+		Picture:  picture,
 	}, nil
 }
 

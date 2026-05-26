@@ -45,7 +45,7 @@ func (a *AuthController) Register(ctx *gin.Context) {
 	res, err := a.authService.RegisterUser(ctx.Request.Context(), body)
 	if err != nil {
 		log.Println("Error: ", err.Error())
-		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+		ctx.JSON(http.StatusConflict, dto.ErrorResponse{
 			Message: "Email is Registered",
 			Success: false,
 			Error:   "Internal Server Error",
