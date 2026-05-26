@@ -17,6 +17,7 @@ func InitRouter(router *gin.Engine, db *pgxpool.Pool) {
 	router.Use(middleware.CORSMiddleware)
 	//swagger docs
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	router.Static("/img/profile", "public/img/profiles")
 
 	AuthRouter(router, db)
 	UserRouter(router, db)
