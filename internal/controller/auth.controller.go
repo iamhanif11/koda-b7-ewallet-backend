@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin/binding"
 	"github.com/iamhanif11/ewallet-backend/internal/dto"
 	"github.com/iamhanif11/ewallet-backend/internal/service"
+	"github.com/iamhanif11/ewallet-backend/pkg"
 )
 
 type AuthController struct {
@@ -102,4 +103,53 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 		},
 	},
 	)
+}
+
+// User Logout
+//
+//	@Summary		Logout user
+//	@Description	Logout user from E-Wallet and blaclist the token
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Success		200	{object}	dto.Response[any]
+//	@Failure		500	{object}	dto.ErrorResponse
+//	@Failure		401	{object}	dto.ErrorResponse
+//	@Router			/auth/logout [delete]
+func (ac *AuthController) Logout(ctx *gin.Context) {
+	rawToken := ctx.GetString("raw_token")
+	userData, exist := ctx.Get("user")
+
+	if !exist {
+		ctx.JSON(http.StatusUnauthorized, dto.ErrorResponse{
+			Message: "Logout Failed",
+			Success: false,
+		})
+		return
+	}
+
+	claims, ok := userData.(*pkg.Claims)
+	if !ok {
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Message: "Logout Failed",
+			Success: false,
+		})
+		return
+	}
+
+	err := ac.authService.LogoutUser(ctx.Request.Context(), rawToken, claims.ExpiresAt.Time)
+	if err != nil {
+		log.Println("error: ", err.Error())
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Message: "Logout Failed",
+			Success: false,
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, dto.Response[any]{
+		Message: "Logout Succesfully",
+		Success: true,
+		Data:    nil,
+	})
 }

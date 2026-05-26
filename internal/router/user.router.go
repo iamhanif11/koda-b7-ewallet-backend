@@ -7,10 +7,11 @@ import (
 	"github.com/iamhanif11/ewallet-backend/internal/repository"
 	"github.com/iamhanif11/ewallet-backend/internal/service"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 )
 
-func UserRouter(router *gin.Engine, db *pgxpool.Pool) {
-	authRepository := repository.NewAuthRepository(db)
+func UserRouter(router *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
+	authRepository := repository.NewAuthRepository(db, rdb)
 	userRepository := repository.NewUserRepository(db)
 
 	authMiddleware := middleware.NewAuthMiddleware(authRepository)

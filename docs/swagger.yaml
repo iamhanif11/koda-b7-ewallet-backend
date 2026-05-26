@@ -274,6 +274,31 @@ paths:
       summary: Login into a user
       tags:
       - auth
+  /auth/logout:
+    delete:
+      consumes:
+      - application/json
+      description: Logout user from E-Wallet and blaclist the token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.Response-any'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Logout user
+      tags:
+      - auth
   /auth/register:
     post:
       consumes:

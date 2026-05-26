@@ -25,6 +25,7 @@ func NewAuthMiddleware(authRepository *repository.AuthRepository) *AuthMiddlewar
 
 func (m *AuthMiddleware) VerifyToken() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		log.Printf("cek: '%s'\n", ctx.GetHeader("Authorization"))
 		bearerToken := ctx.GetHeader("Authorization")
 		if bearerToken == "" {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, dto.ErrorResponse{
@@ -44,6 +45,15 @@ func (m *AuthMiddleware) VerifyToken() gin.HandlerFunc {
 			return
 		}
 		token := splittedBearer[1]
+
+		if m.authRepository.IsTokenBlacklisted(ctx.Request.Context(), token) {
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, dto.ErrorResponse{
+				Message: "Unauthorized Access, Please login again",
+				Success: false,
+			})
+			return
+		}
+
 		claims := &pkg.Claims{}
 		if err := claims.VerifyJWT(token); err != nil {
 			log.Println("Error: ", err.Error())
@@ -63,6 +73,7 @@ func (m *AuthMiddleware) VerifyToken() gin.HandlerFunc {
 			return
 
 		}
+		ctx.Set("raw_token", token)
 		ctx.Set("user", claims)
 
 		ctx.Next()

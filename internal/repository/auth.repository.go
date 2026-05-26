@@ -3,18 +3,22 @@ package repository
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/iamhanif11/ewallet-backend/internal/model"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 )
 
 type AuthRepository struct {
-	db *pgxpool.Pool
+	db  *pgxpool.Pool
+	rdb *redis.Client
 }
 
-func NewAuthRepository(db *pgxpool.Pool) *AuthRepository {
+func NewAuthRepository(db *pgxpool.Pool, rdb *redis.Client) *AuthRepository {
 	return &AuthRepository{
-		db: db,
+		db:  db,
+		rdb: rdb,
 	}
 }
 
@@ -51,4 +55,14 @@ func (ar *AuthRepository) GetUserByEmail(ctx context.Context, email string) (mod
 		return model.User{}, err
 	}
 	return user, nil
+}
+
+func (ar *AuthRepository) BlacklistToken(ctx context.Context, token string, expired time.Duration) error {
+	return ar.rdb.Set(ctx, token, "revoked", expired).Err()
+}
+
+func (ar *AuthRepository) IsTokenBlacklisted(ctx context.Context, token string) bool {
+	err := ar.rdb.Get(ctx, token).Err()
+
+	return err == nil
 }

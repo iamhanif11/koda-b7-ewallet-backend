@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log"
+	"time"
 
 	"github.com/iamhanif11/ewallet-backend/internal/dto"
 	"github.com/iamhanif11/ewallet-backend/internal/repository"
@@ -61,4 +62,25 @@ func (as *AuthService) LoginUser(ctx context.Context, user dto.Login) (string, d
 	return token, dto.User{
 		Email: user.Email,
 	}, nil
+}
+
+func (as *AuthService) LogoutUser(ctx context.Context, token string, expiresAt time.Time) error {
+	timeRemaining := time.Until(expiresAt)
+
+	log.Printf("Token Expires At: %v\n", expiresAt)
+
+	log.Printf("Sisa Waktu (TTL): %v\n", timeRemaining)
+	if timeRemaining <= 0 {
+		log.Println("WARNING: Token sudah expired, tidak disimpan ke Redis.")
+		return nil
+	}
+
+	err := as.authRepository.BlacklistToken(ctx, token, timeRemaining)
+	if err != nil {
+		log.Printf("Failed blacklist token to redis: %v", err)
+		return errors.New("Failed to logout")
+	}
+
+	log.Println("sukses")
+	return nil
 }
