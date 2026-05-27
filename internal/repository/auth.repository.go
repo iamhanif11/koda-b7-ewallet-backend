@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"log"
 	"time"
 
@@ -80,4 +81,46 @@ func (ar *AuthRepository) CheckPinUserByEmail(ctx context.Context, email string)
 		return false, err
 	}
 	return true, nil
+}
+
+func (ar *AuthRepository) CheckEmailExist(ctx context.Context, dbtx DBTX, email string) (bool, error) {
+	var exists bool
+
+	sql := `
+		SELECT EXISTS (
+			SELECT 1
+			FROM users
+			WHERE email =$1
+		)
+	`
+
+	err := dbtx.QueryRow(ctx, sql, email).Scan(&exists)
+
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}
+
+func (ar *AuthRepository) ResetPassword(ctx context.Context, dbtx DBTX, email string, hashedPassword string) error {
+	sql := `
+		UPDATE users
+		SET
+			password = $1,
+			updated_at = CURRENT_TIMESTAMP
+		WHERE email = $2
+	`
+
+	result, err := dbtx.Exec(ctx, sql, hashedPassword, email)
+
+	if err != nil {
+		return err
+	}
+
+	if result.RowsAffected() == 0 {
+		return errors.New("user not found")
+	}
+
+	return nil
 }

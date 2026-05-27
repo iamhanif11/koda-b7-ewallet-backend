@@ -13,11 +13,13 @@ import (
 
 type AuthService struct {
 	authRepository *repository.AuthRepository
+	db             repository.DBTX
 }
 
-func NewAuthService(authRepository *repository.AuthRepository) *AuthService {
+func NewAuthService(authRepository *repository.AuthRepository, db repository.DBTX) *AuthService {
 	return &AuthService{
 		authRepository: authRepository,
+		db:             db,
 	}
 }
 
@@ -87,4 +89,38 @@ func (as *AuthService) LogoutUser(ctx context.Context, token string, expiresAt t
 
 func (as *AuthService) CheckPinUser(ctx context.Context, email string) (bool, error) {
 	return as.authRepository.CheckPinUserByEmail(ctx, email)
+}
+
+func (as *AuthService) VerifyEmail(ctx context.Context, req dto.VerifyEmailReq) error {
+	exists, err := as.authRepository.CheckEmailExist(ctx, as.db, req.Email)
+
+	if err != nil {
+		return err
+	}
+
+	if !exists {
+		return errors.New("email not found")
+	}
+
+	return nil
+}
+
+func (as *AuthService) ResetPassword(ctx context.Context, req dto.ResetPasswordReq) error {
+	if req.NewPassword != req.ConfirmPassword {
+		return errors.New("password confirmation does not match")
+	}
+
+	var hc pkg.HashConfig
+	hc.UseRecommended()
+
+	hashedPassword := hc.GenerateHash(req.NewPassword)
+
+	err := as.authRepository.ResetPassword(ctx, as.db, req.Email, hashedPassword)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+
 }

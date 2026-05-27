@@ -156,3 +156,117 @@ func (ac *AuthController) Logout(ctx *gin.Context) {
 		Data:    nil,
 	})
 }
+
+// Verify Email
+//
+//	@Summary		Verify Email
+//	@Description	Check email before reset password
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body		dto.VerifyEmailReq	true	"verify email payload"
+//	@Success		200		{object}	dto.Response[any]
+//	@Failure		400		{object}	dto.ErrorResponse
+//	@Failure		500		{object}	dto.ErrorResponse
+//	@Router			/auth/forgot-password/verify-email [post]
+func (ac *AuthController) VerifyEmail(ctx *gin.Context) {
+	var body dto.VerifyEmailReq
+
+	if err := ctx.ShouldBindBodyWith(&body, binding.JSON); err != nil {
+		log.Println("error: ", err.Error())
+
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Message: "Invalid Request Body",
+			Success: false,
+		})
+		return
+	}
+
+	err := ac.authService.VerifyEmail(ctx.Request.Context(), body)
+
+	if err != nil {
+		log.Println("Error: ", err.Error())
+
+		if err.Error() == "email not found" {
+			ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+				Message: "Email not found",
+				Success: false,
+			})
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Message: "Verify Email failed",
+			Success: false,
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.Response[any]{
+		Message: "Email Verified",
+		Success: true,
+		Data:    nil,
+	})
+
+}
+
+// Reset Password
+//
+//	@Summary		Reset Password
+//	@Description	Reset user password
+//	@Tags			auth
+//	@Accept			json
+//	@Produce		json
+//	@Param			body	body		dto.ResetPasswordReq	true	"reset password payload"
+//	@Success		200		{object}	dto.Response[any]
+//	@Failure		400		{object}	dto.ErrorResponse
+//	@Failure		500		{object}	dto.ErrorResponse
+//	@Router			/auth/forgot-password/reset [post]
+func (ac *AuthController) ResetPassword(ctx *gin.Context) {
+	var body dto.ResetPasswordReq
+
+	if err := ctx.ShouldBindBodyWith(&body, binding.JSON); err != nil {
+		log.Println("Error", err.Error())
+
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Message: "invalid Request body",
+			Success: false,
+		})
+		return
+	}
+
+	err := ac.authService.ResetPassword(ctx.Request.Context(), body)
+
+	if err != nil {
+
+		if err.Error() == "Password confirmation not match" {
+			ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+				Message: "Password Not match",
+				Success: false,
+				Error:   err.Error(),
+			})
+			return
+		}
+
+		if err.Error() == "user not found" {
+			ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+				Message: "User not found",
+				Success: false,
+			})
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Message: "reset password failed",
+			Success: false,
+			Error:   err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.Response[any]{
+		Message: "Reset Password Success",
+		Success: true,
+		Data:    nil,
+	})
+}

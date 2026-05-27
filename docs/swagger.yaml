@@ -67,6 +67,15 @@ definitions:
       reciver:
         type: string
     type: object
+  github_com_iamhanif11_ewallet-backend_internal_dto.ResetPasswordReq:
+    properties:
+      confirm_password:
+        type: string
+      email:
+        type: string
+      new_password:
+        type: string
+    type: object
   github_com_iamhanif11_ewallet-backend_internal_dto.Response-any:
     properties:
       data: {}
@@ -148,6 +157,13 @@ definitions:
         type: boolean
       message:
         type: string
+    type: object
+  github_com_iamhanif11_ewallet-backend_internal_dto.TopUpRequest:
+    properties:
+      amount:
+        type: integer
+      payment_method_id:
+        type: integer
     type: object
   github_com_iamhanif11_ewallet-backend_internal_dto.TransferRequest:
     properties:
@@ -253,6 +269,11 @@ definitions:
       picture:
         type: string
     type: object
+  github_com_iamhanif11_ewallet-backend_internal_dto.VerifyEmailReq:
+    properties:
+      email:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -290,6 +311,66 @@ paths:
           schema:
             $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
       summary: Login into a user
+      tags:
+      - auth
+  /auth/forgot-password/reset:
+    post:
+      consumes:
+      - application/json
+      description: Reset user password
+      parameters:
+      - description: reset password payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ResetPasswordReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.Response-any'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+      summary: Reset Password
+      tags:
+      - auth
+  /auth/forgot-password/verify-email:
+    post:
+      consumes:
+      - application/json
+      description: Check email before reset password
+      parameters:
+      - description: verify email payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.VerifyEmailReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.Response-any'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+      summary: Verify Email
       tags:
       - auth
   /auth/logout:
@@ -383,6 +464,42 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Search and Retriever Receiver List
+      tags:
+      - transactions
+  /transaction/topup:
+    post:
+      consumes:
+      - application/json
+      description: Top up user wallet balance
+      parameters:
+      - description: Top Up Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.TopUpRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.Response-any'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Top Up Balance
       tags:
       - transactions
   /transaction/transfer:

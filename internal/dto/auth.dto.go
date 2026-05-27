@@ -28,3 +28,13 @@ type LoginResponse struct {
 	Token  string `json:"token" example:"token..."`
 	HasPin bool   `json:"has_pin"`
 }
+
+type VerifyEmailReq struct {
+	Email string `json:"email"`
+}
+
+type ResetPasswordReq struct {
+	Email           string `json:"email"`
+	NewPassword     string `json:"new_password"`
+	ConfirmPassword string `json:"confirm_password"`
+}
