@@ -12,8 +12,10 @@ definitions:
   github_com_iamhanif11_ewallet-backend_internal_dto.Login:
     properties:
       email:
+        example: kentang@gmail.com
         type: string
       password:
+        example: "123456"
         minLength: 6
         type: string
     required:
@@ -22,7 +24,10 @@ definitions:
     type: object
   github_com_iamhanif11_ewallet-backend_internal_dto.LoginResponse:
     properties:
+      has_pin:
+        type: boolean
       token:
+        example: token...
         type: string
     type: object
   github_com_iamhanif11_ewallet-backend_internal_dto.NewUser:

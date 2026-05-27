@@ -616,19 +616,25 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "kentang@gmail.com"
                 },
                 "password": {
                     "type": "string",
-                    "minLength": 6
+                    "minLength": 6,
+                    "example": "123456"
                 }
             }
         },
         "github_com_iamhanif11_ewallet-backend_internal_dto.LoginResponse": {
             "type": "object",
             "properties": {
+                "has_pin": {
+                    "type": "boolean"
+                },
                 "token": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "token..."
                 }
             }
         },

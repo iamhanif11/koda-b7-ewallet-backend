@@ -8,8 +8,8 @@ type NewUser struct {
 }
 
 type Login struct {
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required,min=6"`
+	Email    string `json:"email" binding:"required" example:"kentang@gmail.com"`
+	Password string `json:"password" binding:"required,min=6" example:"123456"`
 }
 
 type User struct {
@@ -25,5 +25,6 @@ type User struct {
 }
 
 type LoginResponse struct {
-	Token string `json:"token"`
+	Token  string `json:"token" example:"token..."`
+	HasPin bool   `json:"has_pin"`
 }

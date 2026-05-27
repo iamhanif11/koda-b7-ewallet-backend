@@ -95,11 +95,14 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 		return
 	}
 
+	hasPin, err := ac.authService.CheckPinUser(ctx.Request.Context(), body.Email)
+	log.Println("haspin :", hasPin)
 	ctx.JSON(http.StatusOK, dto.Response[dto.LoginResponse]{
 		Message: "Login Succesfully",
 		Success: true,
 		Data: dto.LoginResponse{
-			Token: token,
+			Token:  token,
+			HasPin: hasPin,
 		},
 	},
 	)

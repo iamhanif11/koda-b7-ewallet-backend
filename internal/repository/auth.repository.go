@@ -66,3 +66,18 @@ func (ar *AuthRepository) IsTokenBlacklisted(ctx context.Context, token string) 
 
 	return err == nil
 }
+
+func (ar *AuthRepository) CheckPinUserByEmail(ctx context.Context, email string) (bool, error) {
+	sql := `
+		SELECT pin
+		FROM users 
+		WHERE email = $1
+	`
+
+	var result string
+	err := ar.db.QueryRow(ctx, sql, email).Scan(&result)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}

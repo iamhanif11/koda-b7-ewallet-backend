@@ -84,3 +84,7 @@ func (as *AuthService) LogoutUser(ctx context.Context, token string, expiresAt t
 	log.Println("sukses")
 	return nil
 }
+
+func (as *AuthService) CheckPinUser(ctx context.Context, email string) (bool, error) {
+	return as.authRepository.CheckPinUserByEmail(ctx, email)
+}
