@@ -9,7 +9,7 @@ type Transaction struct {
 	TransactionType string     `db:"transaction_type"`
 	Status          string     `db:"status"`
 	CreatedAt       time.Time  `db:"created_at"`
-	UpadtedAt       *time.Time `db:"updated_at"`
+	UpadatedAt      *time.Time `db:"updated_at"`
 }
 
 type Receiver struct {

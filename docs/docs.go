@@ -146,6 +146,11 @@ const docTemplate = `{
         },
         "/transaction/receivers": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "List other users for transfer purpose with search and pagination",
                 "consumes": [
                     "application/json"
@@ -158,13 +163,6 @@ const docTemplate = `{
                 ],
                 "summary": "Search and Retriever Receiver List",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Bearer \u003ctoken\u003e",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "type": "string",
                         "description": "Search keyword by name and phone",

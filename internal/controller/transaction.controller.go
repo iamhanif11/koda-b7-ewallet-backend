@@ -28,7 +28,7 @@ func NewTransactionController(transactionService *service.TransactionService) *T
 //	@Tags			transactions
 //	@Accept			json
 //	@Produce		json
-//	@Param			Authorization	header	string				true	"Bearer <token>"
+//	@Security		ApiKeyAuth
 //	@Param			search			query	string		false	"Search keyword by name and phone"
 //	@Param			page			query	int			false	"Page Number"
 //	@Param			limit			query	int			false	"Max data per page"

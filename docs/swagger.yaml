@@ -331,11 +331,6 @@ paths:
       - application/json
       description: List other users for transfer purpose with search and pagination
       parameters:
-      - description: Bearer <token>
-        in: header
-        name: Authorization
-        required: true
-        type: string
       - description: Search keyword by name and phone
         in: query
         name: search
@@ -367,6 +362,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
       summary: Search and Retriever Receiver List
       tags:
       - transactions
