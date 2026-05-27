@@ -34,3 +34,8 @@ type TransferResponse struct {
 	TransactionType string `json:"transaction_type"`
 	CreatedAt       string `json:"created_at"`
 }
+
+type TopUpRequest struct {
+	Amount          int `json:"amount"`
+	PaymentMethodId int `json:"payment_method_id"`
+}

@@ -23,4 +23,6 @@ func TransactionRouter(router *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) 
 
 	TransactionRouter.GET("/receivers", transactionController.FindReceivers)
 	TransactionRouter.POST("/transfer", transactionController.Transfer)
+	TransactionRouter.POST("/topup", transactionController.Topup)
+
 }

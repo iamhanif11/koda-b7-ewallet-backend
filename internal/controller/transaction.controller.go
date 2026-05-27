@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -171,4 +172,91 @@ func (tc *TransactionController) Transfer(ctx *gin.Context) {
 		Success: true,
 	})
 
+}
+
+// Top Up
+//
+//	@Summary		Top Up Balance
+//	@Description	Top up user wallet balance
+//	@Tags			transactions
+//	@Accept			json
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Param			request	body		dto.TopUpRequest	true	"Top Up Request"
+//	@Success		200		{object}	dto.Response[any]
+//	@Failure		400		{object}	dto.ErrorResponse
+//	@Failure		401		{object}	dto.ErrorResponse
+//	@Failure		500		{object}	dto.ErrorResponse
+//	@Router			/transaction/topup [post]
+func (tc *TransactionController) Topup(ctx *gin.Context) {
+	claims, exists := ctx.Get("user")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, dto.ErrorResponse{
+			Message: "Authentication Failed",
+			Success: false,
+		})
+		return
+	}
+
+	userClaims, ok := claims.(*pkg.Claims)
+	if !ok {
+		ctx.JSON(http.StatusUnauthorized, dto.ErrorResponse{
+			Message: "Invalid",
+			Success: false,
+		})
+		return
+	}
+
+	var req dto.TopUpRequest
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Message: "Invalid Request Body",
+			Success: false,
+		})
+		return
+	}
+
+	if req.Amount <= 0 {
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Message: "Amount must be greater than 0",
+			Success: false,
+		})
+		return
+	}
+
+	if req.PaymentMethodId <= 0 {
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Message: "Payment method is required",
+			Success: false,
+		})
+		return
+	}
+
+	err := tc.transactionService.TopUp(ctx.Request.Context(), userClaims.Id, req)
+
+	log.Println("error", err)
+	if err != nil {
+
+		if err.Error() == "payment method not found" {
+			ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+				Message: "Payment method not found",
+				Success: false,
+			})
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Message: "Top up failed",
+			Success: false,
+			Error:   err.Error(),
+		})
+		return
+
+	}
+	ctx.JSON(http.StatusOK, dto.Response[any]{
+		Message: "Top up Succes",
+		Success: true,
+		Data:    nil,
+	})
 }

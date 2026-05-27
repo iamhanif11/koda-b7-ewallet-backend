@@ -140,3 +140,85 @@ func (tr *TransactionRepository) Transfer(ctx context.Context, dbtx DBTX, sender
 
 	return nil
 }
+
+func (tr *TransactionRepository) TopUp(ctx context.Context, dbtx DBTX, userId, amount, paymentMethodId int) error {
+	var paymentMethodExist bool
+
+	checkPaymentMethodSql := `
+		SELECT EXISTS (
+			SELECT 1
+			FROM payment_method
+			WHERE id = $1
+		)
+	`
+
+	err := dbtx.QueryRow(ctx, checkPaymentMethodSql, paymentMethodId).Scan(&paymentMethodExist)
+
+	if err != nil {
+		return err
+	}
+
+	if !paymentMethodExist {
+		return errors.New("Payment method not found")
+	}
+
+	//calc
+	serviceFee := 0
+	taxAmount := amount * 10 / 100
+	subTotal := amount + serviceFee + taxAmount
+
+	//insert topup
+	var transactionId int
+
+	insertTransactionSql := `
+		INSERT INTO transactions (
+			user_id, amount, transaction_type, status
+		)
+		VALUES ($1, $2, 'top up', 'completed')
+		RETURNING id
+	`
+
+	err = dbtx.QueryRow(
+		ctx, insertTransactionSql, userId, amount,
+	).Scan(&transactionId)
+
+	if err != nil {
+		return err
+	}
+
+	//insert top up
+	topUpDetailSql := `
+		INSERT INTO topup_detail(
+			transaction_id, payment_method_id, service_fee, tax_amount,sub_total
+		)
+		VALUES($1, $2, $3, $4, $5)
+	`
+
+	_, err = dbtx.Exec(
+		ctx, topUpDetailSql, transactionId, paymentMethodId, serviceFee, taxAmount, subTotal,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	updateWalletSql := `
+		UPDATE wallet
+		SET
+			balance = balance + $1,
+			update_at = CURRENT_TIMESTAMP
+		WHERE user_id = $2
+	`
+
+	result, err := dbtx.Exec(ctx, updateWalletSql, amount, userId)
+
+	if err != nil {
+		return err
+	}
+
+	if result.RowsAffected() == 0 {
+		return errors.New("wallet not found")
+	}
+
+	return nil
+}

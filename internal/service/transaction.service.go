@@ -63,3 +63,21 @@ func (ts *TransactionService) Transfer(ctx context.Context, senderId int, req dt
 
 	return tx.Commit(ctx)
 }
+
+func (ts *TransactionService) TopUp(ctx context.Context, userId int, req dto.TopUpRequest) error {
+
+	tx, err := ts.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback(ctx)
+
+	err = ts.transactionRepository.TopUp(ctx, tx, userId, req.Amount, req.PaymentMethodId)
+
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
+}
