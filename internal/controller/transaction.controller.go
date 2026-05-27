@@ -83,3 +83,92 @@ func (tc *TransactionController) FindReceivers(ctx *gin.Context) {
 		Success: true,
 	})
 }
+
+// Transfer
+//
+//	@Summary		Transfer Balance
+//	@Description	Transfer balance to another user
+//	@Tags			transactions
+//	@Accept			json
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Param			request	body		dto.TransferRequest	true	"Transfer Request"
+//	@Success		200		{object}	dto.Response[any]
+//	@Failure		400		{object}	dto.ErrorResponse
+//	@Failure		401		{object}	dto.ErrorResponse
+//	@Failure		500		{object}	dto.ErrorResponse
+//	@Router			/transaction/transfer [post]
+func (tc *TransactionController) Transfer(ctx *gin.Context) {
+	claims, ok := ctx.Get("user")
+	userClaims, ok := claims.(*pkg.Claims)
+
+	if !ok {
+		ctx.JSON(http.StatusUnauthorized, dto.ErrorResponse{
+			Message: "Authentication Failed",
+			Success: false,
+		})
+		return
+	}
+
+	var req dto.TransferRequest
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Message: "Invalid Request Body",
+			Success: false,
+		})
+		return
+	}
+
+	if req.ReceiverId <= 0 {
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Message: "Receiver Id is Required",
+			Success: false,
+		})
+		return
+	}
+
+	if req.Amount <= 0 {
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Message: "Amount Must be Greater than 0",
+			Success: false,
+		})
+		return
+	}
+
+	if userClaims.Id == req.ReceiverId {
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Message: "Cannot Transfer to Yourself",
+			Success: false,
+		})
+		return
+	}
+
+	err := tc.transactionService.Transfer(
+		ctx.Request.Context(),
+		userClaims.Id, req,
+	)
+
+	if err != nil {
+		if err.Error() == "insufficient balance" {
+			ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+				Message: "Inssuficient Balance",
+				Success: false,
+			})
+			return
+		}
+
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Message: "Transfer Failed",
+			Success: false,
+			Error:   err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.Response[any]{
+		Message: "Transfer Success",
+		Success: true,
+	})
+
+}

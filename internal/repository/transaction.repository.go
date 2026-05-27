@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	"github.com/iamhanif11/ewallet-backend/internal/model"
 	"github.com/jackc/pgx/v5"
@@ -55,4 +56,87 @@ func (tr *TransactionRepository) FindReceivers(ctx context.Context, dbtx DBTX, u
 	}
 
 	return receivers, nil
+}
+
+func (tr *TransactionRepository) Transfer(ctx context.Context, dbtx DBTX, senderId, receiverId int, amount int, notes string) error {
+	var balance int
+	checkBalanceSql := `
+		SELECT balance
+		FROM wallet
+		WHERE user_id = $1
+		FOR UPDATE
+	`
+
+	err := dbtx.QueryRow(ctx, checkBalanceSql, senderId).Scan(&balance)
+
+	if err != nil {
+		return err
+	}
+
+	if balance < amount {
+		return errors.New("Insufficient balance")
+	}
+
+	//tx
+	var transactionId int
+
+	insertTxSql := `
+		INSERT INTO transactions (
+			user_id, amount, transaction_type, status
+		) VALUES ($1, $2, 'transfer out', 'completed')
+		RETURNING id
+	`
+	err = dbtx.QueryRow(ctx, insertTxSql, senderId, amount).Scan(&transactionId)
+
+	if err != nil {
+		return err
+	}
+
+	//tx detail
+	insertTxDetailSql := `
+		INSERT INTO transfer_detail (
+			transaction_id,
+			receiver_id,
+			notes
+		)
+		VALUES($1, $2, $3)
+	`
+
+	_, err = dbtx.Exec(ctx, insertTxDetailSql, transactionId, receiverId, notes)
+
+	if err != nil {
+		return err
+	}
+
+	//reduce sender balance
+	reduceBalanceSql := `
+		UPDATE wallet
+		SET
+			balance = balance - $1,
+			update_at = CURRENT_TIMESTAMP
+		WHERE user_id = $2
+	`
+
+	_, err = dbtx.Exec(ctx, reduceBalanceSql, amount, senderId)
+
+	if err != nil {
+		return err
+	}
+
+	//add balance receive
+	addBalanceSql := `
+		UPDATE wallet
+		SET
+			balance = balance + $1,
+			update_at = CURRENT_TIMESTAMP
+		WHERE user_id = $2
+	`
+
+	_, err = dbtx.Exec(ctx, addBalanceSql, amount, receiverId)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

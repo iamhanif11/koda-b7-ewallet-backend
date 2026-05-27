@@ -149,6 +149,19 @@ definitions:
       message:
         type: string
     type: object
+  github_com_iamhanif11_ewallet-backend_internal_dto.TransferRequest:
+    properties:
+      amount:
+        type: integer
+      notes:
+        maxLength: 255
+        type: string
+      receiver_id:
+        type: integer
+    required:
+    - amount
+    - receiver_id
+    type: object
   github_com_iamhanif11_ewallet-backend_internal_dto.User:
     properties:
       created_at:
@@ -370,6 +383,42 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Search and Retriever Receiver List
+      tags:
+      - transactions
+  /transaction/transfer:
+    post:
+      consumes:
+      - application/json
+      description: Transfer balance to another user
+      parameters:
+      - description: Transfer Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.TransferRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.Response-any'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Transfer Balance
       tags:
       - transactions
   /user/password:

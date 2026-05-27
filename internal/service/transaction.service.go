@@ -46,3 +46,20 @@ func (ts *TransactionService) FindReceivers(ctx context.Context, userId int, sea
 		},
 	}, nil
 }
+
+func (ts *TransactionService) Transfer(ctx context.Context, senderId int, req dto.TransferRequest) error {
+	tx, err := ts.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback(ctx)
+
+	err = ts.transactionRepository.Transfer(ctx, tx, senderId, req.ReceiverId, req.Amount, req.Notes)
+
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
+}

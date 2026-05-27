@@ -22,5 +22,5 @@ func TransactionRouter(router *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) 
 	TransactionRouter.Use(authMiddleware.VerifyToken())
 
 	TransactionRouter.GET("/receivers", transactionController.FindReceivers)
-
+	TransactionRouter.POST("/transfer", transactionController.Transfer)
 }

@@ -210,6 +210,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/transaction/transfer": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Transfer balance to another user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transactions"
+                ],
+                "summary": "Transfer Balance",
+                "parameters": [
+                    {
+                        "description": "Transfer Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.TransferRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.Response-any"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/password": {
             "patch": {
                 "security": [
@@ -819,6 +876,25 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_iamhanif11_ewallet-backend_internal_dto.TransferRequest": {
+            "type": "object",
+            "required": [
+                "amount",
+                "receiver_id"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "notes": {
+                    "type": "string",
+                    "maxLength": 255
+                },
+                "receiver_id": {
+                    "type": "integer"
                 }
             }
         },
