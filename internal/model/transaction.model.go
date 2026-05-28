@@ -35,6 +35,14 @@ type Wallet struct {
 	UpdatedAt *time.Time `db:"update_at" json:"updated_at"`
 }
 
+type TransactionHistory struct {
+	Id        int
+	Type      string
+	Amount    int
+	Status    string
+	CreatedAt time.Time
+}
+
 // type TransactionDetail struct {
 // 	ID              int     `json:"id"`
 // 	UserID          int     `json:"user_id"`

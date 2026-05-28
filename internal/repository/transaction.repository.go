@@ -222,3 +222,47 @@ func (tr *TransactionRepository) TopUp(ctx context.Context, dbtx DBTX, userId, a
 
 	return nil
 }
+
+func (tr *TransactionRepository) GetTransactionHistoryById(ctx context.Context, dbtx DBTX, userId int, search string, limit int, offset int) ([]model.TransactionHistory, error) {
+	sql := `
+		SELECT id, transaction_type, amount, status, created_at
+		FROM transactions
+		WHERE user_id = $1
+		AND (
+			transaction_type ILIKE '%' || $2 || '%'
+			OR status ILIKE '%' || $2 || '%'
+		)
+		ORDER BY created_at DESC
+		LIMIT $3
+		OFFSET $4
+	`
+
+	args := []any{userId, search, limit, offset}
+	rows, err := dbtx.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var histories []model.TransactionHistory
+
+	for rows.Next() {
+		var history model.TransactionHistory
+
+		err := rows.Scan(&history.Id, &history.Type, &history.Amount, &history.Status, &history.CreatedAt)
+
+		if err != nil {
+			return nil, err
+		}
+
+		histories = append(histories, history)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return histories, nil
+
+}

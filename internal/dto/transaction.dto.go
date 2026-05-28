@@ -1,5 +1,7 @@
 package dto
 
+import "time"
+
 type ReceiverResponse struct {
 	Id       int     `json:"id"`
 	Picture  *string `json:"picture"`
@@ -24,7 +26,7 @@ type TransferRequest struct {
 }
 
 type TransferResponse struct {
-	ID              int    `json:"id"`
+	Id              int    `json:"id"`
 	Amount          int    `json:"amount"`
 	ReceiverID      int    `json:"receiver_id"`
 	ReceiverName    string `json:"receiver_name"`
@@ -38,4 +40,17 @@ type TransferResponse struct {
 type TopUpRequest struct {
 	Amount          int `json:"amount"`
 	PaymentMethodId int `json:"payment_method_id"`
+}
+
+type TransactionHistoryItem struct {
+	Id        int       `json:"id"`
+	Type      string    `json:"type_transaction"`
+	Amount    int       `json:"amount"`
+	Status    string    `json:"status"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type TransactionHistoryResponse struct {
+	Items []TransactionHistoryItem `json:"items"`
+	Pages PaginationResponse       `json:"pages"`
 }

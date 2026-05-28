@@ -236,6 +236,72 @@ const docTemplate = `{
                 }
             }
         },
+        "/transaction/history": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get transaction history with search and pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "transactions"
+                ],
+                "summary": "Get Transaction History",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search transaction type or status",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit data",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.Response-github_com_iamhanif11_ewallet-backend_internal_dto_TransactionHistoryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/transaction/receivers": {
             "get": {
                 "security": [
@@ -972,6 +1038,20 @@ const docTemplate = `{
                 }
             }
         },
+        "github_com_iamhanif11_ewallet-backend_internal_dto.Response-github_com_iamhanif11_ewallet-backend_internal_dto_TransactionHistoryResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.TransactionHistoryResponse"
+                },
+                "isSucces": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_iamhanif11_ewallet-backend_internal_dto.Response-github_com_iamhanif11_ewallet-backend_internal_dto_User": {
             "type": "object",
             "properties": {
@@ -1050,6 +1130,40 @@ const docTemplate = `{
                 },
                 "payment_method_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "github_com_iamhanif11_ewallet-backend_internal_dto.TransactionHistoryItem": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "type_transaction": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_iamhanif11_ewallet-backend_internal_dto.TransactionHistoryResponse": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.TransactionHistoryItem"
+                    }
+                },
+                "pages": {
+                    "$ref": "#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.PaginationResponse"
                 }
             }
         },

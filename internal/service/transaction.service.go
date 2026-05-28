@@ -81,3 +81,33 @@ func (ts *TransactionService) TopUp(ctx context.Context, userId int, req dto.Top
 
 	return tx.Commit(ctx)
 }
+
+func (ts *TransactionService) GetTransactionHistory(ctx context.Context, userId int, search string, page, limit int) (dto.TransactionHistoryResponse, error) {
+	offset := (page - 1) * limit
+
+	histories, err := ts.transactionRepository.GetTransactionHistoryById(ctx, ts.db, userId, search, limit, offset)
+
+	if err != nil {
+		return dto.TransactionHistoryResponse{}, err
+	}
+
+	items := make([]dto.TransactionHistoryItem, 0, len(histories))
+	for _, history := range histories {
+
+		items = append(items, dto.TransactionHistoryItem{
+			Id:        history.Id,
+			Type:      history.Type,
+			Amount:    history.Amount,
+			Status:    history.Status,
+			CreatedAt: history.CreatedAt,
+		})
+	}
+
+	return dto.TransactionHistoryResponse{
+		Items: items,
+		Pages: dto.PaginationResponse{
+			Page:  page,
+			Limit: limit,
+		},
+	}, nil
+}

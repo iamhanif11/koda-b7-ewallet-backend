@@ -113,6 +113,15 @@ definitions:
       message:
         type: string
     type: object
+  ? github_com_iamhanif11_ewallet-backend_internal_dto.Response-github_com_iamhanif11_ewallet-backend_internal_dto_TransactionHistoryResponse
+  : properties:
+      data:
+        $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.TransactionHistoryResponse'
+      isSucces:
+        type: boolean
+      message:
+        type: string
+    type: object
   github_com_iamhanif11_ewallet-backend_internal_dto.Response-github_com_iamhanif11_ewallet-backend_internal_dto_User:
     properties:
       data:
@@ -164,6 +173,28 @@ definitions:
         type: integer
       payment_method_id:
         type: integer
+    type: object
+  github_com_iamhanif11_ewallet-backend_internal_dto.TransactionHistoryItem:
+    properties:
+      amount:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      status:
+        type: string
+      type_transaction:
+        type: string
+    type: object
+  github_com_iamhanif11_ewallet-backend_internal_dto.TransactionHistoryResponse:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.TransactionHistoryItem'
+        type: array
+      pages:
+        $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.PaginationResponse'
     type: object
   github_com_iamhanif11_ewallet-backend_internal_dto.TransferRequest:
     properties:
@@ -424,6 +455,48 @@ paths:
       summary: Register a user
       tags:
       - auth
+  /transaction/history:
+    get:
+      consumes:
+      - application/json
+      description: Get transaction history with search and pagination
+      parameters:
+      - description: Search transaction type or status
+        in: query
+        name: search
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Limit data
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.Response-github_com_iamhanif11_ewallet-backend_internal_dto_TransactionHistoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Transaction History
+      tags:
+      - transactions
   /transaction/receivers:
     get:
       consumes:

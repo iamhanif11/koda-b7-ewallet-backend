@@ -260,3 +260,85 @@ func (tc *TransactionController) Topup(ctx *gin.Context) {
 		Data:    nil,
 	})
 }
+
+// Get Transaction History
+//
+//	@Summary		Get Transaction History
+//	@Description	Get transaction history with search and pagination
+//	@Tags			transactions
+//	@Accept			json
+//	@Produce		json
+//	@Security		ApiKeyAuth
+//	@Param			search	query		string	false	"Search transaction type or status"
+//	@Param			page	query		int		false	"Page number"
+//	@Param			limit	query		int		false	"Limit data"
+//	@Success		200		{object}	dto.Response[dto.TransactionHistoryResponse]
+//	@Failure		400		{object}	dto.ErrorResponse
+//	@Failure		401		{object}	dto.ErrorResponse
+//	@Failure		500		{object}	dto.ErrorResponse
+//	@Router			/transaction/history [get]
+func (tc *TransactionController) TransactionHistory(ctx *gin.Context) {
+	claims, exists := ctx.Get("user")
+
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, dto.ErrorResponse{
+			Message: "Authentication Failed",
+			Success: false,
+		})
+		return
+	}
+
+	userClaims, ok := claims.(*pkg.Claims)
+
+	if !ok {
+		ctx.JSON(http.StatusUnauthorized, dto.ErrorResponse{
+			Message: "Invalid User",
+			Success: false,
+		})
+		return
+	}
+
+	page, err := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+
+	if err != nil || page < 1 {
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Message: "Invalid page parameter",
+			Success: false,
+		})
+		return
+	}
+
+	limit, err := strconv.Atoi(ctx.DefaultQuery("limit", "10"))
+
+	if err != nil || limit < 1 {
+		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Message: "Invalid limit parameter",
+			Success: false,
+		})
+		return
+	}
+
+	search := strings.TrimSpace(
+		ctx.DefaultQuery("search", ""),
+	)
+
+	res, err := tc.transactionService.GetTransactionHistory(ctx.Request.Context(), userClaims.Id, search, page, limit)
+
+	if err != nil {
+		log.Println("trx: ", err)
+
+		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Message: "failed to get transaction history",
+			Success: false,
+			Error:   err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto.Response[dto.TransactionHistoryResponse]{
+		Message: "Get Transaction History",
+		Success: true,
+		Data:    res,
+	})
+
+}
