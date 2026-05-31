@@ -50,7 +50,7 @@ func (as *AuthService) LoginUser(ctx context.Context, user dto.Login) (string, d
 
 	var hash pkg.HashConfig
 	if err := hash.Compare(user.Password, login.Password); err != nil {
-		return "", dto.User{}, errors.New("Email or Password Invalid")
+		return "", dto.User{}, errors.New("Password not match")
 	}
 
 	claims := pkg.NewClaims(login.Id, user.Email)

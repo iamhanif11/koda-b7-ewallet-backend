@@ -84,13 +84,13 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 		return
 	}
 
-	token, _, err := ac.authService.LoginUser(ctx.Request.Context(), body)
+	token, userData, err := ac.authService.LoginUser(ctx.Request.Context(), body)
 	if err != nil {
 		log.Println("Error: ", err.Error())
 		ctx.JSON(http.StatusUnauthorized, dto.ErrorResponse{
 			Message: "Login Failed",
 			Success: false,
-			Error:   "Unauthorized Access",
+			Error:   err.Error(),
 		})
 		return
 	}
@@ -103,6 +103,7 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 		Data: dto.LoginResponse{
 			Token:  token,
 			HasPin: hasPin,
+			User:   userData,
 		},
 	},
 	)

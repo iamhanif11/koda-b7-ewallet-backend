@@ -27,6 +27,7 @@ type User struct {
 type LoginResponse struct {
 	Token  string `json:"token" example:"token..."`
 	HasPin bool   `json:"has_pin"`
+	User   User   `json:"user"`
 }
 
 type VerifyEmailReq struct {
