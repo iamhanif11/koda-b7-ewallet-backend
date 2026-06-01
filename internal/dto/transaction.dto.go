@@ -48,6 +48,9 @@ type TransactionHistoryItem struct {
 	Amount    int       `json:"amount"`
 	Status    string    `json:"status"`
 	CreatedAt time.Time `json:"created_at"`
+	Fullname  string    `json:"fullname"`
+	Picture   string    `json:"picture"`
+	Phone     string    `json:"phone"`
 }
 
 type TransactionHistoryResponse struct {

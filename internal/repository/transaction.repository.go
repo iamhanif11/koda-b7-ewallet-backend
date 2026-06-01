@@ -225,16 +225,34 @@ func (tr *TransactionRepository) TopUp(ctx context.Context, dbtx DBTX, userId, a
 
 func (tr *TransactionRepository) GetTransactionHistoryById(ctx context.Context, dbtx DBTX, userId int, search string, limit int, offset int) ([]model.TransactionHistory, error) {
 	sql := `
-		SELECT id, transaction_type, amount, status, created_at
-		FROM transactions
-		WHERE user_id = $1
-		AND (
-			transaction_type ILIKE '%' || $2 || '%'
-			OR status ILIKE '%' || $2 || '%'
+		WITH history AS (
+			SELECT
+				t.id, 
+				CASE
+					WHEN t.user_id = $1 AND td.receiver_id IS NOT NULL THEN 'expense'
+					WHEN td.receiver_id = $1 THEN 'income'
+					ELSE 'income'
+				END as transaction_type,
+				t.amount,
+				t.status,
+				t.created_at,
+				COALESCE(u.fullname, '') as fullname,
+				COALESCE(u.picture, '') as picture,
+				COALESCE(u.phone, '') as phone
+			FROM transactions t
+			LEFT JOIN transfer_detail td ON t.id = td.transaction_id
+			LEFT JOIN users u ON 
+                (t.user_id = $1 AND td.receiver_id = u.id) OR 
+                (td.receiver_id = $1 AND t.user_id = u.id)
+            WHERE t.user_id = $1 OR td.receiver_id = $1
 		)
-		ORDER BY created_at DESC
-		LIMIT $3
-		OFFSET $4
+		SELECT id, transaction_type, amount, status, created_at, fullname, picture, phone
+        FROM history
+        WHERE fullname ILIKE '%' || $2 || '%' 
+           OR phone ILIKE '%' || $2 || '%' 
+           OR transaction_type ILIKE '%' || $2 || '%'
+        ORDER BY created_at DESC
+        LIMIT $3 OFFSET $4
 	`
 
 	args := []any{userId, search, limit, offset}
@@ -250,7 +268,7 @@ func (tr *TransactionRepository) GetTransactionHistoryById(ctx context.Context, 
 	for rows.Next() {
 		var history model.TransactionHistory
 
-		err := rows.Scan(&history.Id, &history.Type, &history.Amount, &history.Status, &history.CreatedAt)
+		err := rows.Scan(&history.Id, &history.Type, &history.Amount, &history.Status, &history.CreatedAt, &history.Fullname, &history.Picture, &history.Phone)
 
 		if err != nil {
 			return nil, err

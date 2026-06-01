@@ -100,6 +100,9 @@ func (ts *TransactionService) GetTransactionHistory(ctx context.Context, userId 
 			Amount:    history.Amount,
 			Status:    history.Status,
 			CreatedAt: history.CreatedAt,
+			Fullname:  *history.Fullname,
+			Picture:   *history.Picture,
+			Phone:     *history.Phone,
 		})
 	}
 

@@ -1145,8 +1145,17 @@ const docTemplate = `{
                 "created_at": {
                     "type": "string"
                 },
+                "fullname": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "picture": {
+                    "type": "string"
                 },
                 "status": {
                     "type": "string"

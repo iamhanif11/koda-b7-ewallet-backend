@@ -41,6 +41,9 @@ type TransactionHistory struct {
 	Amount    int
 	Status    string
 	CreatedAt time.Time
+	Fullname  *string
+	Picture   *string
+	Phone     *string
 }
 
 // type TransactionDetail struct {
