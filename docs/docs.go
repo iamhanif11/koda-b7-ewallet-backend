@@ -907,6 +907,9 @@ const docTemplate = `{
                 "token": {
                     "type": "string",
                     "example": "token..."
+                },
+                "user": {
+                    "$ref": "#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.User"
                 }
             }
         },

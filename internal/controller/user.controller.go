@@ -219,7 +219,7 @@ func (uc *UserController) UpdateProfile(ctx *gin.Context) {
 			return
 		}
 
-		generatedURL := "/img/profile" + filename
+		generatedURL := "/img/profile/" + filename
 		pictureURL = &generatedURL
 	}
 
@@ -329,6 +329,22 @@ func (uc *UserController) UpdatePin(ctx *gin.Context) {
 
 	}
 	if err := uc.userService.UpdatePin(ctx.Request.Context(), userClaims.Id, body); err != nil {
+
+		if errors.Is(err, service.ErrInvalidPin) {
+			ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+				Message: "Current PIN wrong!",
+				Success: false,
+			})
+			return
+		}
+
+		if errors.Is(err, service.ErrPin) {
+			ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
+				Message: "Please Input PIN",
+				Success: false,
+			})
+			return
+		}
 
 		ctx.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Message: "Internal Server Error",

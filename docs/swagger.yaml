@@ -29,6 +29,8 @@ definitions:
       token:
         example: token...
         type: string
+      user:
+        $ref: '#/definitions/github_com_iamhanif11_ewallet-backend_internal_dto.User'
     type: object
   github_com_iamhanif11_ewallet-backend_internal_dto.NewUser:
     properties:
