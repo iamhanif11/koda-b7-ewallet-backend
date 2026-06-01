@@ -25,10 +25,10 @@ func (tr *TransactionRepository) FindReceivers(ctx context.Context, dbtx DBTX, u
 	sql := `
 		SELECT id, picture, fullname AS receiver, phone
 		FROM users
-		WHERE id = $1 AND
+		WHERE id != $1 AND
 			(
-				fullname ILIKE $2 || '%'
-				OR phone ILIKE $2 || '%'
+				fullname ILIKE	'%' || $2 || '%'
+				OR phone ILIKE	'%' || $2 || '%'
 			)
 		ORDER BY fullname ASC
 		LIMIT $3

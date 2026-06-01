@@ -5,7 +5,7 @@ import "time"
 type ReceiverResponse struct {
 	Id       int     `json:"id"`
 	Picture  *string `json:"picture"`
-	Receiver string  `json:"reciver"`
+	Receiver string  `json:"receiver"`
 	Phone    string  `json:"phone"`
 }
 

@@ -959,7 +959,7 @@
                 "picture": {
                     "type": "string"
                 },
-                "reciver": {
+                "receiver": {
                     "type": "string"
                 }
             }

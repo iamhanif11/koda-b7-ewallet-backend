@@ -965,7 +965,7 @@ const docTemplate = `{
                 "picture": {
                     "type": "string"
                 },
-                "reciver": {
+                "receiver": {
                     "type": "string"
                 }
             }
