@@ -238,15 +238,17 @@ func (tr *TransactionRepository) GetTransactionHistoryById(ctx context.Context, 
 				t.created_at,
 				COALESCE(u.fullname, '') as fullname,
 				COALESCE(u.picture, '') as picture,
-				COALESCE(u.phone, '') as phone
+				COALESCE(u.phone, '') as phone,
+				tp.payment_method_id
 			FROM transactions t
 			LEFT JOIN transfer_detail td ON t.id = td.transaction_id
+			LEFT JOIN topup_detail tp ON t.id = tp.transaction_id
 			LEFT JOIN users u ON 
                 (t.user_id = $1 AND td.receiver_id = u.id) OR 
                 (td.receiver_id = $1 AND t.user_id = u.id)
             WHERE t.user_id = $1 OR td.receiver_id = $1
 		)
-		SELECT id, transaction_type, amount, status, created_at, fullname, picture, phone
+		SELECT id, transaction_type, amount, status, created_at, fullname, picture, phone, payment_method_id
         FROM history
         WHERE fullname ILIKE '%' || $2 || '%' 
            OR phone ILIKE '%' || $2 || '%' 
@@ -268,7 +270,7 @@ func (tr *TransactionRepository) GetTransactionHistoryById(ctx context.Context, 
 	for rows.Next() {
 		var history model.TransactionHistory
 
-		err := rows.Scan(&history.Id, &history.Type, &history.Amount, &history.Status, &history.CreatedAt, &history.Fullname, &history.Picture, &history.Phone)
+		err := rows.Scan(&history.Id, &history.Type, &history.Amount, &history.Status, &history.CreatedAt, &history.Fullname, &history.Picture, &history.Phone, &history.PaymentMethodId)
 
 		if err != nil {
 			return nil, err

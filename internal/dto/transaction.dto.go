@@ -43,14 +43,15 @@ type TopUpRequest struct {
 }
 
 type TransactionHistoryItem struct {
-	Id        int       `json:"id"`
-	Type      string    `json:"type_transaction"`
-	Amount    int       `json:"amount"`
-	Status    string    `json:"status"`
-	CreatedAt time.Time `json:"created_at"`
-	Fullname  string    `json:"fullname"`
-	Picture   string    `json:"picture"`
-	Phone     string    `json:"phone"`
+	Id              int       `json:"id"`
+	Type            string    `json:"type_transaction"`
+	Amount          int       `json:"amount"`
+	Status          string    `json:"status"`
+	CreatedAt       time.Time `json:"created_at"`
+	Fullname        string    `json:"fullname"`
+	Picture         string    `json:"picture"`
+	Phone           string    `json:"phone"`
+	PaymentMethodId *int      `json:"payment_method_id"`
 }
 
 type TransactionHistoryResponse struct {

@@ -36,14 +36,15 @@ type Wallet struct {
 }
 
 type TransactionHistory struct {
-	Id        int
-	Type      string
-	Amount    int
-	Status    string
-	CreatedAt time.Time
-	Fullname  *string
-	Picture   *string
-	Phone     *string
+	Id              int
+	Type            string
+	Amount          int
+	Status          string
+	CreatedAt       time.Time
+	Fullname        *string
+	Picture         *string
+	Phone           *string
+	PaymentMethodId *int
 }
 
 // type TransactionDetail struct {
