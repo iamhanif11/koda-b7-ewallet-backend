@@ -11,6 +11,8 @@ import (
 	"github.com/iamhanif11/ewallet-backend/pkg"
 )
 
+var ErrEmailAlreadyExists = errors.New("Email is already registered, please use another email")
+
 type AuthService struct {
 	authRepository *repository.AuthRepository
 	db             repository.DBTX
@@ -25,9 +27,15 @@ func NewAuthService(authRepository *repository.AuthRepository, db repository.DBT
 
 // register
 func (as *AuthService) RegisterUser(ctx context.Context, user dto.NewUser) (dto.User, error) {
+	existingUser, err := as.authRepository.GetUserByEmail(ctx, user.Email)
+
+	if err == nil && existingUser.Email != "" {
+		return dto.User{}, ErrEmailAlreadyExists
+	}
 	var hc pkg.HashConfig
 	hc.UseRecommended()
 	hashPwd := hc.GenerateHash(user.Password)
+
 	newUser, err := as.authRepository.AddUser(ctx, user.Email, hashPwd)
 	if err != nil {
 		return dto.User{}, err

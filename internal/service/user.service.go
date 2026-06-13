@@ -2,40 +2,62 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/iamhanif11/ewallet-backend/internal/dto"
 	"github.com/iamhanif11/ewallet-backend/internal/model"
 	"github.com/iamhanif11/ewallet-backend/internal/repository"
 	"github.com/iamhanif11/ewallet-backend/pkg"
+	"github.com/redis/go-redis/v9"
 )
 
 type UserService struct {
 	userRepository *repository.UserRepository
+	rdb            *redis.Client
 }
 
 var ErrPin = errors.New("Please Input PIN")
 var ErrInvalidPin = errors.New("Invalid")
 var ErrInvalidPasswd = errors.New("Invalid Password")
 
-func NewUserService(userRepository *repository.UserRepository) *UserService {
+func NewUserService(userRepository *repository.UserRepository, rdb *redis.Client) *UserService {
 	return &UserService{
 		userRepository: userRepository,
+		rdb:            rdb,
 	}
 }
 
 func (us *UserService) GetProfile(ctx context.Context, user_Id int) (dto.UserProfileRes, error) {
+	cacheKey := fmt.Sprintf("user:%d:profile", user_Id)
+
+	cachedData, err := us.rdb.Get(ctx, cacheKey).Result()
+	if err == nil {
+		var profilRes dto.UserProfileRes
+
+		if errUnmarshal := json.Unmarshal([]byte(cachedData), &profilRes); errUnmarshal == nil {
+			return profilRes, nil
+		}
+
+	}
 	profile, err := us.userRepository.GetProfileById(ctx, user_Id)
 	if err != nil {
 		return dto.UserProfileRes{}, err
 	}
 
-	return dto.UserProfileRes{
+	res := dto.UserProfileRes{
 		Fullname: profile.Fullname,
 		Email:    profile.Email,
 		Picture:  profile.Picture,
-	}, nil
+	}
+
+	if resBytes, errMarshal := json.Marshal(res); errMarshal == nil {
+		us.rdb.Set(ctx, cacheKey, resBytes, 24*time.Hour)
+	}
+
+	return res, nil
 }
 
 func (us *UserService) CheckPin(ctx context.Context, user_Id int, pin string) (dto.UserCheckPinRes, error) {
@@ -97,18 +119,35 @@ func (us *UserService) UpdatePin(ctx context.Context, userId int, req dto.UserUp
 }
 
 func (us *UserService) GetDashboardInformation(ctx context.Context, userId int) (dto.UserDashboardInformationRes, error) {
+	cacheKey := fmt.Sprintf("user:%d:dashboard", userId)
+
+	cacheData, err := us.rdb.Get(ctx, cacheKey).Result()
+	if err == nil {
+		var dashboardres dto.UserDashboardInformationRes
+
+		if errUnmarshal := json.Unmarshal([]byte(cacheData), &dashboardres); errUnmarshal == nil {
+			return dashboardres, nil
+		}
+	}
+
 	dashboard, err := us.userRepository.GetDashboardInformationById(ctx, userId)
 	if err != nil {
 		return dto.UserDashboardInformationRes{}, err
 	}
 
-	return dto.UserDashboardInformationRes{
+	res := dto.UserDashboardInformationRes{
 		Balance: dashboard.Balance,
 		Income:  dashboard.Income,
 		Expense: dashboard.Expense,
-	}, nil
-}
+	}
 
+	if resByte, errMarshal := json.Marshal(res); errMarshal == nil {
+		us.rdb.Set(ctx, cacheKey, resByte, 24*time.Hour)
+	}
+
+	return res, nil
+
+}
 func (us *UserService) GetTransactionReport(ctx context.Context, userId int) ([]dto.UserTransactionReportRes, error) {
 	endDate := time.Now().Truncate(24 * time.Hour)
 	startDate := endDate.AddDate(0, 0, -6)

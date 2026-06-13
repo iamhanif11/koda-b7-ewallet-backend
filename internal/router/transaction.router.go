@@ -14,7 +14,7 @@ func TransactionRouter(router *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) 
 	authRepository := repository.NewAuthRepository(db, rdb)
 	transactionRepository := repository.NewTransactionRepository()
 	authMiddleware := middleware.NewAuthMiddleware(authRepository)
-	transactionService := service.NewTransactionService(transactionRepository, db)
+	transactionService := service.NewTransactionService(transactionRepository, db, rdb)
 	transactionController := controller.NewTransactionController(transactionService)
 
 	TransactionRouter := router.Group("/transaction")

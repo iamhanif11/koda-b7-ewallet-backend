@@ -15,7 +15,7 @@ func UserRouter(router *gin.Engine, db *pgxpool.Pool, rdb *redis.Client) {
 	userRepository := repository.NewUserRepository(db)
 
 	authMiddleware := middleware.NewAuthMiddleware(authRepository)
-	userService := service.NewUserService(userRepository)
+	userService := service.NewUserService(userRepository, rdb)
 	userController := controller.NewUserController(userService)
 
 	UserRouter := router.Group("/user")

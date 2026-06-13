@@ -2,21 +2,25 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/iamhanif11/ewallet-backend/internal/dto"
 	"github.com/iamhanif11/ewallet-backend/internal/repository"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/redis/go-redis/v9"
 )
 
 type TransactionService struct {
 	db                    *pgxpool.Pool
 	transactionRepository *repository.TransactionRepository
+	rdb                   *redis.Client
 }
 
-func NewTransactionService(transactionRepository *repository.TransactionRepository, db *pgxpool.Pool) *TransactionService {
+func NewTransactionService(transactionRepository *repository.TransactionRepository, db *pgxpool.Pool, rdb *redis.Client) *TransactionService {
 	return &TransactionService{
 		db:                    db,
 		transactionRepository: transactionRepository,
+		rdb:                   rdb,
 	}
 }
 
@@ -61,7 +65,20 @@ func (ts *TransactionService) Transfer(ctx context.Context, senderId int, req dt
 		return err
 	}
 
-	return tx.Commit(ctx)
+	err = tx.Commit(ctx)
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		bgCtx := context.Background()
+		senderCacheKey := fmt.Sprintf("user:%d:dashboard", senderId)
+		receiverCacheKey := fmt.Sprintf("user:%d:dashboard", req.ReceiverId)
+
+		ts.rdb.Del(bgCtx, senderCacheKey, receiverCacheKey)
+	}()
+
+	return nil
 }
 
 func (ts *TransactionService) TopUp(ctx context.Context, userId int, req dto.TopUpRequest) error {
@@ -79,7 +96,16 @@ func (ts *TransactionService) TopUp(ctx context.Context, userId int, req dto.Top
 		return err
 	}
 
-	return tx.Commit(ctx)
+	err = tx.Commit(ctx)
+	if err != nil {
+		return err
+	}
+	go func() {
+		dashboardCacheKey := fmt.Sprintf("user:%d:dashboard", userId)
+		ts.rdb.Del(context.Background(), dashboardCacheKey)
+	}()
+
+	return nil
 }
 
 func (ts *TransactionService) GetTransactionHistory(ctx context.Context, userId int, search string, page, limit int) (dto.TransactionHistoryResponse, error) {
