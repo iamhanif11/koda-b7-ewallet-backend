@@ -9,7 +9,7 @@ import (
 )
 
 func CORSMiddleware(ctx *gin.Context) {
-	allowedOrigin := []string{"http://localhost:5173", "http://localhost:3000"}
+	allowedOrigin := []string{"*"}
 	currentOrigin := ctx.GetHeader("Origin")
 	if slices.Contains(allowedOrigin, currentOrigin) {
 		ctx.Header("Access-Control-Allow-Origin", currentOrigin)
