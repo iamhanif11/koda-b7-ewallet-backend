@@ -77,6 +77,9 @@ func (us *UserService) UpdateProfile(ctx context.Context, user_Id int, req dto.U
 		return dto.UserUpdateProfilRes{}, err
 	}
 
+	cacheKey := fmt.Sprintf("user:%d:profile", user_Id)
+	us.rdb.Del(ctx, cacheKey)
+
 	var fullname, phone, picture string
 
 	if user.Fullname != nil {
