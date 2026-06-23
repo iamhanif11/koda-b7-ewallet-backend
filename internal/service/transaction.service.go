@@ -72,10 +72,20 @@ func (ts *TransactionService) Transfer(ctx context.Context, senderId int, req dt
 
 	go func() {
 		bgCtx := context.Background()
-		senderCacheKey := fmt.Sprintf("user:%d:dashboard", senderId)
-		receiverCacheKey := fmt.Sprintf("user:%d:dashboard", req.ReceiverId)
+		// senderCacheKey := fmt.Sprintf("user:%d:dashboard", senderId)
+		// receiverCacheKey := fmt.Sprintf("user:%d:dashboard", req.ReceiverId)
+		senderBalanceKey := fmt.Sprintf("user:%d:balance", senderId)
+		senderExpenseKey := fmt.Sprintf("user:%d:expense", senderId)
 
-		ts.rdb.Del(bgCtx, senderCacheKey, receiverCacheKey)
+		receiverBalanceKey := fmt.Sprintf("user:%d:balance", req.ReceiverId)
+		receiverIncomeKey := fmt.Sprintf("user:%d:income", req.ReceiverId)
+
+		ts.rdb.Del(bgCtx,
+			senderBalanceKey,
+			senderExpenseKey,
+			receiverBalanceKey,
+			receiverIncomeKey,
+		)
 	}()
 
 	return nil
@@ -101,8 +111,12 @@ func (ts *TransactionService) TopUp(ctx context.Context, userId int, req dto.Top
 		return err
 	}
 	go func() {
-		dashboardCacheKey := fmt.Sprintf("user:%d:dashboard", userId)
-		ts.rdb.Del(context.Background(), dashboardCacheKey)
+		bgCtx := context.Background()
+
+		balanceKey := fmt.Sprintf("user:%d:balance", userId)
+		incomeKey := fmt.Sprintf("user:%d:income", userId)
+
+		ts.rdb.Del(bgCtx, balanceKey, incomeKey)
 	}()
 
 	return nil

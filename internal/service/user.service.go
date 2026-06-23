@@ -122,15 +122,49 @@ func (us *UserService) UpdatePin(ctx context.Context, userId int, req dto.UserUp
 }
 
 func (us *UserService) GetDashboardInformation(ctx context.Context, userId int) (dto.UserDashboardInformationRes, error) {
-	cacheKey := fmt.Sprintf("user:%d:dashboard", userId)
+	// cacheKey := fmt.Sprintf("user:%d:dashboard", userId)
+	balanceKey := fmt.Sprintf("user:%d:balance", userId)
+	incomeKey := fmt.Sprintf("user:%d:income", userId)
+	expenseKey := fmt.Sprintf("user:%d:expense", userId)
 
-	cacheData, err := us.rdb.Get(ctx, cacheKey).Result()
-	if err == nil {
-		var dashboardres dto.UserDashboardInformationRes
+	// cacheData, err := us.rdb.Get(ctx, cacheKey).Result()
+	// if err == nil {
+	// 	var dashboardres dto.UserDashboardInformationRes
 
-		if errUnmarshal := json.Unmarshal([]byte(cacheData), &dashboardres); errUnmarshal == nil {
-			return dashboardres, nil
+	// 	if errUnmarshal := json.Unmarshal([]byte(cacheData), &dashboardres); errUnmarshal == nil {
+	// 		return dashboardres, nil
+	// 	}
+	// }
+
+	var res dto.UserDashboardInformationRes
+	cacheMiss := false
+
+	if balData, err := us.rdb.Get(ctx, balanceKey).Bytes(); err == nil {
+		if errUnmarshal := json.Unmarshal(balData, &res.Balance); errUnmarshal != nil {
+			cacheMiss = true
 		}
+	} else {
+		cacheMiss = true
+	}
+
+	if incData, err := us.rdb.Get(ctx, incomeKey).Bytes(); err == nil {
+		if errUnmarshal := json.Unmarshal(incData, &res.Income); errUnmarshal != nil {
+			cacheMiss = true
+		}
+	} else {
+		cacheMiss = true
+	}
+
+	if expData, err := us.rdb.Get(ctx, expenseKey).Bytes(); err == nil {
+		if errUnmarshal := json.Unmarshal(expData, &res.Expense); errUnmarshal != nil {
+			cacheMiss = true
+		}
+	} else {
+		cacheMiss = true
+	}
+
+	if !cacheMiss {
+		return res, nil
 	}
 
 	dashboard, err := us.userRepository.GetDashboardInformationById(ctx, userId)
@@ -138,14 +172,20 @@ func (us *UserService) GetDashboardInformation(ctx context.Context, userId int) 
 		return dto.UserDashboardInformationRes{}, err
 	}
 
-	res := dto.UserDashboardInformationRes{
-		Balance: dashboard.Balance,
-		Income:  dashboard.Income,
-		Expense: dashboard.Expense,
-	}
+	res.Balance = dashboard.Balance
+	res.Income = dashboard.Income
+	res.Expense = dashboard.Expense
 
-	if resByte, errMarshal := json.Marshal(res); errMarshal == nil {
-		us.rdb.Set(ctx, cacheKey, resByte, 24*time.Hour)
+	ttl := 15 * time.Minute
+
+	if balByte, err := json.Marshal(res.Balance); err == nil {
+		us.rdb.Set(ctx, balanceKey, balByte, ttl)
+	}
+	if incByte, err := json.Marshal(res.Income); err == nil {
+		us.rdb.Set(ctx, incomeKey, incByte, ttl)
+	}
+	if expByte, err := json.Marshal(res.Expense); err == nil {
+		us.rdb.Set(ctx, expenseKey, expByte, ttl)
 	}
 
 	return res, nil

@@ -99,17 +99,27 @@ func (uc *UserController) GetProfile(ctx *gin.Context) {
 //	@Failure		401	{object}	dto.ErrorResponse
 //	@Router			/user/profile/pin/check [post]
 func (uc *UserController) CheckPin(ctx *gin.Context) {
-	claims, ok := ctx.Get("user")
+	claims, exists := ctx.Get("user")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, dto.ErrorResponse{
+			Message: "User claims not found token",
+			Success: false,
+		})
+		return
+	}
 	userClaims, ok := claims.(*pkg.Claims)
 	log.Println("cek: ", userClaims)
-
 	if !ok {
+		ctx.JSON(http.StatusUnauthorized, dto.ErrorResponse{
+			Message: "Invalid User Claims Format",
+			Success: false,
+		})
 		return
 	}
 
 	var body dto.UserCheckPinReq
 	log.Println("cek body", body)
-	if err := ctx.ShouldBindWith(&body, binding.JSON); err != nil {
+	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.JSON(http.StatusBadRequest, dto.ErrorResponse{
 			Message: "Bad request",
 			Success: false,
